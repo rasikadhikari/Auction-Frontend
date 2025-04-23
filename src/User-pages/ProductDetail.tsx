@@ -1,40 +1,66 @@
-import React, { useState } from "react";
-import watch from "../Images/watch.jpg";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const ProductDetail = () => {
+  const { id } = useParams(); // Get product ID from URL
+  interface Product {
+    title: string;
+    description: string;
+    mediumused: string;
+    price: number;
+    soldPrice: number;
+    image: string;
+    category: string;
+    height: number;
+    lengthPic: number;
+    width: number;
+    weight: number;
+    isVerify: boolean;
+    createdAt: string;
+  }
+
+  const [product, setProduct] = useState<Product | null>(null);
   const [activeTab, setActiveTab] = useState("description");
 
-  const auctionHistory = [
-    { name: "Alice", amount: "$1200" },
-    { name: "Bob", amount: "$1100" },
-    { name: "Charlie", amount: "$1000" },
-  ];
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(`http://localhost:4000/product/${id}`);
+        setProduct(res.data.product);
+        console.log(res.data.product);
+      } catch (error) {
+        console.error("Failed to fetch product:", error);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  if (!product) {
+    return <div className="text-center text-white mt-10">Loading...</div>;
+  }
 
   return (
-    <div className="min-h-2 bg-blue-600 text-white px-6 py-12">
-      <div className=" mx-auto grid md:grid-cols-2 gap-10">
+    <div className="min-h-screen bg-blue-600 text-white px-6 py-12">
+      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10">
         {/* Product Image */}
         <div>
           <img
-            src={watch}
-            alt="Product"
+            src={`http://localhost:4000${product.image}`}
+            alt={product.title}
             className="rounded-xl shadow-lg w-full"
           />
         </div>
 
         {/* Product Info */}
-        <div className="space-y-4 bg-white rounded-2xl text-black p-6 ">
-          <h2 className="text-3xl font-bold">Vintage Pocket Watch</h2>
-          <p className="text-black">
-            A beautifully preserved vintage pocket watch with mechanical
-            movement. Rare and collectible.
-          </p>
-          <p className="text-black">Condition: Excellent</p>
-          <p className="text-black">Time Left: 2d 4h 30m</p>
-          <p className="text-black">Auction Ends: April 21, 2025</p>
-          <p className="text-black font-semibold">Buy Now: $1,500.00</p>
-          <p className="text-black font-semibold">Current Bid: $1,200.00</p>
-
+        <div className="space-y-4 bg-white rounded-2xl text-black p-6">
+          <h2 className="text-3xl font-bold">{product.title}</h2>
+          <p>{product.description}</p>
+          <p>Condition: {product.mediumused}</p>
+          <p>Time Left: 2d 4h 30m</p> {/* Optional: calculate real time */}
+          <p>Auction Ends: April 21, 2025</p> {/* Optional: use real date */}
+          <p className="font-semibold">Buy Now: ${product.price}</p>
+          <p className="font-semibold">Sold Price: ${product.soldPrice}</p>
           <div className="flex items-center space-x-4">
             <input
               type="number"
@@ -73,29 +99,64 @@ const ProductDetail = () => {
         {/* Tab Content */}
         <div className="mt-6 bg-white rounded-xl p-6 text-gray-800 shadow-md">
           {activeTab === "description" && (
-            <div>
-              <h3 className="font-semibold text-lg mb-2">Product Overview</h3>
-              <ul className="space-y-1 text-sm">
-                <li>Category: Watches</li>
-                <li>Height: 5cm</li>
-                <li>Length: 7cm</li>
-                <li>Width: 3cm</li>
-                <li>Weight: 200g</li>
-              </ul>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+              {/* Left: Product Specs */}
+              <div className="space-y-2 text-sm md:text-base">
+                <h3 className="font-semibold text-lg mb-3 text-gray-800">
+                  Product Overview
+                </h3>
+                <ul className="space-y-2">
+                  <li>
+                    <span className="font-medium">Category:</span>{" "}
+                    {product.category}
+                  </li>
+                  <li>
+                    <span className="font-medium">Height:</span>{" "}
+                    {product.height} cm
+                  </li>
+                  <li>
+                    <span className="font-medium">Length:</span>{" "}
+                    {product.lengthPic} cm
+                  </li>
+                  <li>
+                    <span className="font-medium">Width:</span> {product.width}{" "}
+                    cm
+                  </li>
+                  <li>
+                    <span className="font-medium">Weight:</span>{" "}
+                    {product.weight} g
+                  </li>
+                  <li>
+                    <span className="font-medium">Verified:</span>{" "}
+                    {product.isVerify} g
+                  </li>
+                  <li>
+                    <span className="font-medium">Created:</span>{" "}
+                    {product.createdAt} g
+                  </li>
+                  <li>
+                    <span className="font-medium">Updated:</span>{" "}
+                    {product.createdAt} g
+                  </li>
+                </ul>
+              </div>
+
+              {/* Right: Thumbnail image */}
+              <div className="mt-6 md:mt-0 md:ml-8">
+                <img
+                  src={`http://localhost:4000${product.image}`}
+                  alt={product.title}
+                  className="w-32 h-32 object-cover rounded-md border border-gray-300 shadow"
+                />
+              </div>
             </div>
           )}
-
           {activeTab === "history" && (
             <div>
               <h3 className="font-semibold text-lg mb-4">Auction History</h3>
-              <ul className="space-y-2">
-                {auctionHistory.map((entry, index) => (
-                  <li key={index} className="flex justify-between text-sm">
-                    <span>{entry.name}</span>
-                    <span className="font-semibold">{entry.amount}</span>
-                  </li>
-                ))}
-              </ul>
+              <p className="text-sm text-gray-500">
+                No history implemented yet.
+              </p>
             </div>
           )}
 

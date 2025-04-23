@@ -1,23 +1,36 @@
-import React, { Fragment } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import AdminSidebar from "../components/AdminSidebar";
+import axios from "../Service/axios"; // Adjust if you use a different axios instance
+
+interface Category {
+  _id: string;
+  title: string;
+  createdAt: string;
+  user: {
+    name: string;
+  };
+}
 
 const AdminCategoryPage = () => {
-  // Dummy category data for display
-  const categories = [
-    {
-      id: 1,
-      user: "Rasik",
-      title: "Electronics",
-      date: "2025-04-20",
-    },
-    {
-      id: 2,
-      user: "AdminUser",
-      title: "Fashion",
-      date: "2025-04-18",
-    },
-  ];
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get("/category");
+      console.log(res.data);
+      setCategories(res.data.category || []);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   return (
     <div className="min-h-screen flex bg-gray-100 py-10">
@@ -33,37 +46,43 @@ const AdminCategoryPage = () => {
         </div>
 
         {/* Category Table */}
-        <div className="overflow-x-auto bg-white rounded-lg shadow">
-          <table className="min-w-full text-sm text-left text-gray-700">
-            <thead className="bg-green-100 text-gray-700 uppercase text-xs">
-              <tr>
-                <th className="px-6 py-3">S.N</th>
-                <th className="px-6 py-3">Users</th>
-                <th className="px-6 py-3">Title</th>
-                <th className="px-6 py-3">Date</th>
-                <th className="px-6 py-3">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((cat, index) => (
-                <tr key={cat.id} className="border-b hover:bg-gray-50">
-                  <td className="px-6 py-4">{index + 1}</td>
-                  <td className="px-6 py-4">{cat.user}</td>
-                  <td className="px-6 py-4">{cat.title}</td>
-                  <td className="px-6 py-4">{cat.date}</td>
-                  <td className="px-6 py-4 flex gap-4">
-                    <button className="text-blue-600 hover:text-blue-800">
-                      <FaEdit />
-                    </button>
-                    <button className="text-red-600 hover:text-red-800">
-                      <FaTrashAlt />
-                    </button>
-                  </td>
+        {loading ? (
+          <p className="text-center text-gray-500">Loading categories...</p>
+        ) : (
+          <div className="overflow-x-auto bg-white rounded-lg shadow">
+            <table className="min-w-full text-sm text-left text-gray-700">
+              <thead className="bg-green-100 text-gray-700 uppercase text-xs">
+                <tr>
+                  <th className="px-6 py-3">S.N</th>
+                  <th className="px-6 py-3">User</th>
+                  <th className="px-6 py-3">Title</th>
+                  <th className="px-6 py-3">Date</th>
+                  <th className="px-6 py-3">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {categories.map((cat, index) => (
+                  <tr key={cat._id} className="border-b hover:bg-gray-50">
+                    <td className="px-6 py-4">{index + 1}</td>
+                    <td className="px-6 py-4">{cat.user?.name || "N/A"}</td>
+                    <td className="px-6 py-4">{cat.title}</td>
+                    <td className="px-6 py-4">
+                      {new Date(cat.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 flex gap-4">
+                      <button className="text-blue-600 hover:text-blue-800">
+                        <FaEdit />
+                      </button>
+                      <button className="text-red-600 hover:text-red-800">
+                        <FaTrashAlt />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

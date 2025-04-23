@@ -1,10 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaEye, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import SellerSidebar from "../components/SellerSidebar";
+import axios from "../Service/axios"; // Make sure this is correctly set up for API requests
 
 const SellerDetail = () => {
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchSellerProducts = async () => {
+      try {
+        const res = await axios.get("/product/user", {
+          withCredentials: true,
+        });
+        setProducts(res.data.products || []);
+        console.log(res.data);
+      } catch (err) {
+        console.error("Failed to fetch seller products", err);
+      }
+    };
+
+    fetchSellerProducts();
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10">
+    <div className="min-h-screen flex items-start bg-gray-100 py-10">
       <SellerSidebar />
 
       {/* Product Table (Right Side) */}
@@ -32,31 +51,43 @@ const SellerDetail = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-t">
-                <td className="px-6 py-4">1</td>
-                <td className="px-6 py-4">Test Product</td>
-                <td className="px-6 py-4">0%</td>
-                <td className="px-6 py-4">3223</td>
-                <td className="px-6 py-4">3223</td>
-                <td className="px-6 py-4">
-                  <img
-                    src="https://via.placeholder.com/40"
-                    alt="product"
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                </td>
-                <td className="px-6 py-4 text-red-600 font-bold">No</td>
-                <td className="px-6 py-4">
-                  <button className="bg-gray-400 text-white px-3 py-1 rounded">
-                    Sell
-                  </button>
-                </td>
-                <td className="px-6 py-4 flex space-x-3">
-                  <FaEye className="cursor-pointer text-blue-600" />
-                  <FaEdit className="cursor-pointer text-green-600" />
-                  <FaTrash className="cursor-pointer text-red-600" />
-                </td>
-              </tr>
+              {products.map((product, index) => (
+                <tr key={product._id} className="border-t">
+                  <td className="px-6 py-4">{index + 1}</td>
+                  <td className="px-6 py-4">{product.title}</td>
+                  <td className="px-6 py-4">{product.commission || "0%"}</td>
+                  <td className="px-6 py-4">{product.price}</td>
+                  <td className="px-6 py-4">{product.bidAmount || "N/A"}</td>
+                  <td className="px-6 py-4">
+                    <img
+                      src={`http://localhost:4000${product.image}`}
+                      alt={product.title}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  </td>
+                  <td className="px-6 py-4 font-bold text-sm">
+                    {product.isVerify ? (
+                      <span className="text-green-600">Yes</span>
+                    ) : (
+                      <span className="text-red-600">No</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    {product.isSoldout ? (
+                      <span className="text-gray-600 text-sm">Sold</span>
+                    ) : (
+                      <button className="bg-gray-400 text-white px-3 py-1 rounded">
+                        Sell
+                      </button>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 flex space-x-3">
+                    <FaEye className="cursor-pointer text-blue-600" />
+                    <FaEdit className="cursor-pointer text-green-600" />
+                    <FaTrash className="cursor-pointer text-red-600" />
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -64,24 +95,5 @@ const SellerDetail = () => {
     </div>
   );
 };
-
-interface MenuItemProps {
-  icon: React.ReactNode | string;
-  label: string;
-  active: boolean;
-}
-
-const MenuItem = ({ icon, label, active }: MenuItemProps) => (
-  <div
-    className={`flex items-center px-4 py-2 rounded ${
-      active ? "bg-green-100 text-green-700" : "text-gray-700 hover:bg-gray-100"
-    }`}
-  >
-    <span className="mr-3">
-      {typeof icon === "string" ? icon : <>{icon}</>}
-    </span>
-    {label}
-  </div>
-);
 
 export default SellerDetail;

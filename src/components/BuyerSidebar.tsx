@@ -3,8 +3,16 @@
 import React from "react";
 import { FaTrophy, FaHeart, FaUser, FaSignOutAlt } from "react-icons/fa";
 import SidebarItem from "./SidebarItem";
+import { useNavigate } from "react-router-dom";
 
 const BuyerSidebar = () => {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+
+    navigate("/user/login"); // or use "/admin/login" if you have a separate admin login page
+  };
   return (
     <aside className="w-full md:w-1/4 bg-white p-6 shadow-md border-r rounded-2xl">
       {/* Profile */}
@@ -34,7 +42,10 @@ const BuyerSidebar = () => {
         />
       </nav>
 
-      <button className="mt-10 w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+      <button
+        className="mt-10 w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+        onClick={handleLogout}
+      >
         <FaSignOutAlt /> Log Out
       </button>
     </aside>

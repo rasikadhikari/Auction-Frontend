@@ -1,70 +1,58 @@
-const Dashboard = () => {
-  const categories = [
-    { name: "WATCHES", icon: "⌚" },
-    { name: "ELECTRONICS", icon: "📷" },
-    { name: "SPORTS", icon: "🏐" },
-    { name: "REAL ESTATE", icon: "🏢" },
-    { name: "VEHICLE", icon: "🚗" },
-    { name: "JEWELRY", icon: "💎" },
-    { name: "CLOTHES", icon: "👗" },
-  ];
+import { useEffect, useState } from "react";
+import axios from "../Service/axios";
+import { useNavigate } from "react-router-dom";
 
-  const auctions = [
-    {
-      id: 1,
-      title: "ARTISTIC EMBELLISHMENTS",
-      image: "/api/placeholder/400/320",
-      currentBid: "$8000.00",
-      buyNow: "$8500.00",
-      bids: 1,
-      isOnStock: true,
-    },
-    {
-      id: 2,
-      title: "CERAMIC TEA SETS",
-      image: "/api/placeholder/400/320",
-      currentBid: "$5001.00",
-      buyNow: "$5200.00",
-      bids: 2,
-      isOnStock: true,
-    },
-    {
-      id: 3,
-      title: "CHILDREN'S STORYBOOK",
-      image: "/api/placeholder/400/320",
-      currentBid: "$2002.00",
-      buyNow: "$2100.00",
-      bids: 1,
-      isOnStock: true,
-    },
-    {
-      id: 4,
-      title: "CLASSIC MOVIE POSTERS",
-      image: "/api/placeholder/400/320",
-      currentBid: "$122339.00",
-      buyNow: "$122500.00",
-      bids: 2,
-      isOnStock: true,
-    },
-    {
-      id: 5,
-      title: "VINTAGE VINYL RECORDS",
-      image: "/api/placeholder/400/320",
-      currentBid: "$3349.00",
-      buyNow: "$3400.00",
-      bids: 1,
-      isOnStock: true,
-    },
-    {
-      id: 6,
-      title: "ANTIQUE MAPS AND GLOBES",
-      image: "/api/placeholder/400/320",
-      currentBid: "$34446.00",
-      buyNow: "$35000.00",
-      bids: 3,
-      isOnStock: true,
-    },
-  ];
+const Dashboard = () => {
+  interface Product {
+    _id: string;
+    title: string;
+    price: number;
+    image: string;
+    category: { title: string };
+    createdAt: string;
+  }
+  const [auctions, setAuctions] = useState<Product[]>([]);
+
+  const [categories, setCategories] = useState<
+    { _id: string; title: string }[]
+  >([]);
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        const [categoryRes, productRes] = await Promise.all([
+          axios.get("/category"),
+          axios.get("/product"),
+        ]);
+
+        if (categoryRes.data?.category) {
+          console.log("Category------", categoryRes.data);
+          setCategories(categoryRes.data.category);
+        }
+
+        if (productRes.data?.product) {
+          console.log("product------", productRes.data);
+          setAuctions(productRes.data.product);
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+
+    fetchAllData();
+  }, []);
+
+  const navigate = useNavigate();
+
+  const handlePlaceBid = (productId: string) => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      navigate("/user/login");
+    } else {
+      // ✅ Authorized - go to product detail page
+      navigate(`/products/${productId}`);
+    }
+  };
 
   return (
     <div className="bg-blue-600 text-white min-h-screen px-6 py-12">
@@ -150,39 +138,41 @@ const Dashboard = () => {
               Top Categories
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-10">
-              {categories.map((category, index) => (
+              {categories.map((category) => (
                 <div
-                  key={index}
+                  key={category._id}
                   className="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center justify-center border border-gray-100 hover:shadow-md transition"
                 >
-                  <div className="text-emerald-800 text-2xl mb-2">
-                    {category.icon}
-                  </div>
+                  <div className="text-emerald-800 text-2xl mb-2">📦</div>
                   <p className="font-medium text-gray-700 text-sm">
-                    {category.name}
+                    {category.title?.toUpperCase()}
                   </p>
                 </div>
               ))}
             </div>
 
             {/* Auction Items */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
+              Live Auctions
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
               {auctions.map((item) => (
                 <div
-                  key={item.id}
+                  key={item._id}
                   className="bg-white border border-gray-200 rounded-xl shadow hover:shadow-md transition overflow-hidden"
                 >
                   <div className="relative">
                     <img
-                      src={item.image}
+                      src={`http://localhost:4000${item.image}`}
                       alt={item.title}
                       className="w-full h-48 object-cover"
                     />
                     <div className="absolute top-2 left-2 bg-black bg-opacity-60 text-white text-xs px-3 py-1 rounded-full">
-                      {item.bids} {item.bids === 1 ? "Bid" : "Bids"}
+                      {/* You can adjust bids logic as needed */}
+                      12 Bids
                     </div>
                     <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-3 py-1 rounded-full">
-                      {item.isOnStock ? "On Stock" : "Out of Stock"}
+                      On Stock
                     </div>
                   </div>
                   <div className="p-4">
@@ -191,24 +181,28 @@ const Dashboard = () => {
                     </h3>
                     <div className="text-sm text-gray-600 mb-3">
                       <p>
-                        <span className="font-medium">Current Bid:</span>{" "}
-                        {item.currentBid}
+                        <span className="font-medium">Current Bid:</span> $
+                        {item.price}
                       </p>
                       <p>
-                        <span className="font-medium">Buy Now:</span>{" "}
-                        {item.buyNow}
+                        <span className="font-medium">Buy Now:</span> $
+                        {item.price + 50}
                       </p>
                     </div>
-                    <button className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition w-full">
+                    <button
+                      onClick={() => handlePlaceBid(item._id)}
+                      className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition w-full"
+                    >
                       Place Bid
                     </button>
                   </div>
                 </div>
               ))}
             </div>
+            {/* top seller section */}
             <div className="bg-white rounded-2xl shadow p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4">
-                Top Seller
+                Top Seller Of The Month
               </h2>
               <div className="flex items-center space-x-4">
                 <img
