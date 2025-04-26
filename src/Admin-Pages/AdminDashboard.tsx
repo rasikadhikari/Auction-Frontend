@@ -10,14 +10,14 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userRes = await axios.get("http://localhost:4000/user");
+        const userRes = await axios.get("/user");
         const users = userRes.data;
 
         const admin = users.find((u: any) => u.role === "admin");
         setBalance(admin?.commissionBalance || 0);
         setUserCount(users.length);
 
-        const productRes = await axios.get("http://localhost:4000/product");
+        const productRes = await axios.get("/product");
         const products = productRes.data.product;
         console.log(products);
         setProductCount(products.length);

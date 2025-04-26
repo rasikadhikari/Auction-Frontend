@@ -1,37 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { FaEye, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
-import SellerSidebar from "../components/SellerSidebar";
+import AdminSidebar from "../components/AdminSidebar"; // assume you have an Admin Sidebar
 import axios from "../Service/axios";
 
-const SellerDetail = () => {
-  const [products, setProducts] = useState<any[]>([]);
+const AdminProductList = () => {
+  const [adminProducts, setAdminProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchSellerProducts = async () => {
+    const fetchAdminProducts = async () => {
       try {
         const res = await axios.get("/product/user", {
           withCredentials: true,
         });
-        setProducts(res.data.products || []);
+        setAdminProducts(res.data.products || []);
         console.log(res.data);
       } catch (err) {
-        console.error("Failed to fetch seller products", err);
+        console.error("Failed to fetch admin products", err);
       }
     };
 
-    fetchSellerProducts();
+    fetchAdminProducts();
   }, []);
 
   return (
     <div className="min-h-screen flex items-start bg-gray-100 py-10">
-      <SellerSidebar />
+      <AdminSidebar />
 
-      {/* Product Table (Right Side) */}
+      {/* Admin Product Table (Right Side) */}
       <div className="w-full md:w-3/4 p-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Product Lists</h2>
-          <button className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2">
-            <FaPlus /> Create Product
+          <h2 className="text-2xl font-bold text-gray-800">
+            Admin Product Lists
+          </h2>
+          <button className="bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2">
+            <FaPlus /> Create Admin Product
           </button>
         </div>
 
@@ -41,21 +43,20 @@ const SellerDetail = () => {
               <tr>
                 <th className="px-6 py-3">S.N</th>
                 <th className="px-6 py-3">Title</th>
-                <th className="px-6 py-3">Commission</th>
                 <th className="px-6 py-3">Price</th>
-                <th className="px-6 py-3">Bid Amount (USD)</th>
+                <th className="px-6 py-3">Bid Amount</th>
                 <th className="px-6 py-3">Image</th>
+                <th className="px-6 py-3">Created By</th>
                 <th className="px-6 py-3">Verify</th>
                 <th className="px-6 py-3">Sold</th>
                 <th className="px-6 py-3">Action</th>
               </tr>
             </thead>
             <tbody>
-              {products.map((product, index) => (
+              {adminProducts.map((product, index) => (
                 <tr key={product._id} className="border-t">
                   <td className="px-6 py-4">{index + 1}</td>
                   <td className="px-6 py-4">{product.title}</td>
-                  <td className="px-6 py-4">{product.commission || "0%"}</td>
                   <td className="px-6 py-4">{product.price}</td>
                   <td className="px-6 py-4">{product.bidAmount || "N/A"}</td>
                   <td className="px-6 py-4">
@@ -65,6 +66,7 @@ const SellerDetail = () => {
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   </td>
+                  <td className="px-6 py-4">{product.createdBy || "Admin"}</td>
                   <td className="px-6 py-4 font-bold text-sm">
                     {product.isVerify ? (
                       <span className="text-green-600">Yes</span>
@@ -96,4 +98,4 @@ const SellerDetail = () => {
   );
 };
 
-export default SellerDetail;
+export default AdminProductList;

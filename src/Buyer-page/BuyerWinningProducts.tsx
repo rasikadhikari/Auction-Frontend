@@ -1,28 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+
 import BuyerSidebar from "../components/BuyerSidebar";
+import axios from "../Service/axios";
 
 const BuyerWinningProducts = () => {
-  // Sample data (replace with real data from backend)
-  const winningItems = [
-    {
-      id: 1,
-      title: "Vintage Camera",
-      commission: 10,
-      price: 200,
-      bidAmount: 220,
-      image: "https://i.ibb.co/ZYW3VTp/brown-brim.png",
-      status: "Delivered",
-    },
-    {
-      id: 2,
-      title: "Leather Jacket",
-      commission: 5,
-      price: 150,
-      bidAmount: 165,
-      image: "https://i.ibb.co/0jqHpnp/sneakers.png",
-      status: "Pending",
-    },
-  ];
+  interface WinningItem {
+    id: number;
+    title: string;
+    commission: number;
+    price: number;
+    bidAmount: number;
+    image: string;
+    status: string;
+  }
+
+  const [winningItems, setWinningItems] = useState<WinningItem[]>([]);
+
+  useEffect(() => {
+    const fetchWinningBids = async () => {
+      try {
+        const response = await axios.get("/bid/winning-bids", {
+          withCredentials: true,
+        });
+        console.log(response.data);
+        setWinningItems(response.data.winningBids);
+      } catch (error) {
+        console.error("Error fetching winning bids:", error);
+      }
+    };
+
+    fetchWinningBids();
+  }, []);
 
   return (
     <div className="min-h-screen flex bg-gray-100 py-10">
@@ -58,7 +66,7 @@ const BuyerWinningProducts = () => {
                   <td className="px-4 py-2">${item.bidAmount}</td>
                   <td className="px-4 py-2">
                     <img
-                      src={item.image}
+                      src={`http://localhost:4000${item.image}`}
                       alt={item.title}
                       className="w-12 h-12 rounded object-cover"
                     />

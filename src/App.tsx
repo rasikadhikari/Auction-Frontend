@@ -8,6 +8,7 @@ import ProtectedRoute from "./Service/ProtectedRoute";
 const Dashboard = lazy(() => import("./User-pages/Dashboard"));
 const ProductDetail = lazy(() => import("./User-pages/ProductDetail"));
 const NotAuthorized = lazy(() => import("./User-pages/403-Authpage"));
+const UnderConstruction = lazy(() => import("./User-pages/UnderConstruction"));
 // Buyer
 const BuyerDashboard = lazy(() => import("./Buyer-page/BuyerDashboard"));
 const EditBuyerProfile = lazy(() => import("./Buyer-page/EditBuyerProfile"));
@@ -33,6 +34,7 @@ const AdminEditProfile = lazy(() => import("./Admin-Pages/AdminProfile"));
 const AdminCommissionVerify = lazy(
   () => import("./Admin-Pages/AdminCommissionVerify")
 );
+const AdminOnlyProduct = lazy(() => import("./Admin-Pages/AdminProduct"));
 // Aunthentication
 const Login = lazy(() => import("./Authentication/Login"));
 const Signup = lazy(() => import("./Authentication/Signup"));
@@ -55,6 +57,10 @@ function AuctionContent() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/notauthorize" element={<NotAuthorized />} />
+            <Route
+              path="/underconstruction"
+              element={<UnderConstruction />}
+            ></Route>
             {/* Buyer routes */}
             <Route element={<ProtectedRoute allowedRoles={["buyer"]} />}>
               <Route path="/buyer" element={<BuyerDashboard />} />
@@ -91,6 +97,7 @@ function AuctionContent() {
               <Route path="createproduct" element={<AdminCreateProduct />} />
               <Route path="soldproduct" element={<AdminSoldProduct />} />
               <Route path="editprofile" element={<AdminEditProfile />} />
+              <Route path="adminproduct" element={<AdminOnlyProduct />}></Route>
               <Route
                 path="commission/:id"
                 element={<AdminCommissionVerify />}

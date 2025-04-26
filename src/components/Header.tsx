@@ -39,7 +39,7 @@ const Header = () => {
 
   const handleProductsClick = () => {
     if (!user) {
-      navigate("/auctions"); // Default if not logged in
+      navigate("/user/login"); // Default if not logged in
       return;
     }
 

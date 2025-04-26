@@ -10,6 +10,9 @@ const Dashboard = () => {
     image: string;
     category: { title: string };
     createdAt: string;
+    isSoldout: boolean;
+    bidCount?: number;
+    isVerify?: boolean;
   }
   const [auctions, setAuctions] = useState<Product[]>([]);
 
@@ -26,19 +29,38 @@ const Dashboard = () => {
         ]);
 
         if (categoryRes.data?.category) {
-          console.log("Category------", categoryRes.data);
           setCategories(categoryRes.data.category);
         }
+        console.log(productRes.data);
 
         if (productRes.data?.product) {
-          console.log("product------", productRes.data);
-          setAuctions(productRes.data.product);
+          const productsWithBids = await Promise.all(
+            productRes.data.product.map(async (product: Product) => {
+              try {
+                const token = sessionStorage.getItem("token");
+                const res = await axios.get(`bid/bid-count/${product._id}`, {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+                console.log(res);
+                return { ...product, bidCount: res.data.bidCount || 0 };
+              } catch (err) {
+                console.error(
+                  `Failed to fetch bid count for ${product._id}`,
+                  err
+                );
+                return { ...product, bidCount: 0 };
+              }
+            })
+          );
+
+          setAuctions(productsWithBids);
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       }
     };
-
     fetchAllData();
   }, []);
 
@@ -168,11 +190,24 @@ const Dashboard = () => {
                       className="w-full h-48 object-cover"
                     />
                     <div className="absolute top-2 left-2 bg-black bg-opacity-60 text-white text-xs px-3 py-1 rounded-full">
-                      {/* You can adjust bids logic as needed */}
-                      12 Bids
+                      {item.bidCount} {item.bidCount === 1 ? "Bid" : "Bids"}
                     </div>
-                    <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-3 py-1 rounded-full">
-                      On Stock
+                    {item.isVerify ? (
+                      <div className="absolute bottom-2 right-2 bg-green-500 text-white text-xs px-3 py-1 rounded-full">
+                        Verified
+                      </div>
+                    ) : (
+                      <div className="absolute bottom-2 right-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full">
+                        Not Verified
+                      </div>
+                    )}
+
+                    <div
+                      className={`absolute top-2 right-2 text-white text-xs px-3 py-1 rounded-full ${
+                        item.isSoldout ? "bg-red-500" : "bg-green-500"
+                      }`}
+                    >
+                      {item.isSoldout ? "Sold Out" : "Available"}
                     </div>
                   </div>
                   <div className="p-4">
@@ -186,105 +221,83 @@ const Dashboard = () => {
                       </p>
                       <p>
                         <span className="font-medium">Buy Now:</span> $
-                        {item.price + 50}
+                        {item.price + 100}
                       </p>
                     </div>
+
                     <button
+                      disabled={item.isSoldout}
                       onClick={() => handlePlaceBid(item._id)}
-                      className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition w-full"
+                      className={`bg-blue-600 text-white text-sm px-4 py-2 rounded-lg w-full transition ${
+                        item.isSoldout
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-blue-700"
+                      }`}
                     >
-                      Place Bid
+                      {item.isSoldout ? "Sold Out" : "Place Bid"}
                     </button>
                   </div>
                 </div>
               ))}
             </div>
-            {/* top seller section */}
-            <div className="bg-white rounded-2xl shadow p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
-                Top Seller Of The Month
-              </h2>
-              <div className="flex items-center space-x-4">
-                <img
-                  src="https://randomuser.me/api/portraits/men/32.jpg"
-                  alt="Seller"
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <div>
-                  <p className="text-sm font-medium text-gray-800">John Doe</p>
-                  <p className="text-xs text-gray-500">250+ Products Sold</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <img
-                  src="https://randomuser.me/api/portraits/women/32.jpg"
-                  alt="Seller"
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <div>
-                  <p className="text-sm font-medium text-gray-800">
-                    mary cristmas
-                  </p>
-                  <p className="text-xs text-gray-500">100+ Products Sold</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* How Does Auction Work Section */}
-          <div className="bg-blue-600 py-16 px-6">
-            <div className="max-w-7xl mx-auto text-white">
-              <h2 className="text-3xl font-bold mb-10 text-center">
-                How Does Auction Work?
-              </h2>
+            {/* How Does Auction Work Section */}
+            <div className="bg-blue-600 py-16 px-6">
+              <div className="max-w-7xl mx-auto text-white">
+                <h2 className="text-3xl font-bold mb-10 text-center">
+                  How Does Auction Work?
+                </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                  {
-                    title: "Create an Account",
-                    description:
-                      "Sign up for free and join the world of online auctions.",
-                    image:
-                      "https://cdn-icons-png.flaticon.com/512/1828/1828490.png",
-                  },
-                  {
-                    title: "Browse Auctions",
-                    description:
-                      "Explore a variety of items listed by sellers worldwide.",
-                    image:
-                      "https://cdn-icons-png.flaticon.com/512/709/709496.png",
-                  },
-                  {
-                    title: "Place a Bid",
-                    description:
-                      "Bid in real-time and get notified when you're outbid.",
-                    image:
-                      "https://cdn-icons-png.flaticon.com/512/3500/3500854.png",
-                  },
-                  {
-                    title: "Win and Pay",
-                    description:
-                      "Win the auction and proceed to secure payment and delivery.",
-                    image:
-                      "https://cdn-icons-png.flaticon.com/512/833/833472.png",
-                  },
-                ].map((step, index) => (
-                  <div
-                    key={index}
-                    className="relative bg-white text-gray-800 rounded-2xl shadow-xl p-6 pt-16 text-center"
-                  >
-                    {/* Floating Image */}
-                    <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
-                      <img
-                        src={step.image}
-                        alt={step.title}
-                        className="w-16 h-16 rounded-full border-4 border-white shadow-md bg-white"
-                      />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {[
+                    {
+                      title: "Create an Account",
+                      description:
+                        "Sign up for free and join the world of online auctions.",
+                      image:
+                        "https://cdn-icons-png.flaticon.com/512/1828/1828490.png",
+                    },
+                    {
+                      title: "Browse Auctions",
+                      description:
+                        "Explore a variety of items listed by sellers worldwide.",
+                      image:
+                        "https://cdn-icons-png.flaticon.com/512/709/709496.png",
+                    },
+                    {
+                      title: "Place a Bid",
+                      description:
+                        "Bid in real-time and get notified when you're outbid.",
+                      image:
+                        "https://cdn-icons-png.flaticon.com/512/3500/3500854.png",
+                    },
+                    {
+                      title: "Win and Pay",
+                      description:
+                        "Win the auction and proceed to secure payment and delivery.",
+                      image:
+                        "https://cdn-icons-png.flaticon.com/512/833/833472.png",
+                    },
+                  ].map((step, index) => (
+                    <div
+                      key={index}
+                      className="relative bg-white text-gray-800 rounded-2xl shadow-xl p-6 pt-16 text-center"
+                    >
+                      {/* Floating Image */}
+                      <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
+                        <img
+                          src={step.image}
+                          alt={step.title}
+                          className="w-16 h-16 rounded-full border-4 border-white shadow-md bg-white"
+                        />
+                      </div>
+
+                      <h3 className="text-lg font-bold mb-2">{step.title}</h3>
+                      <p className="text-sm text-gray-600">
+                        {step.description}
+                      </p>
                     </div>
-
-                    <h3 className="text-lg font-bold mb-2">{step.title}</h3>
-                    <p className="text-sm text-gray-600">{step.description}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </div>

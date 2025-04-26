@@ -3,9 +3,17 @@ import SellerSidebar from "../components/SellerSidebar";
 import axios from "../Service/axios";
 
 const SellerDashboard = () => {
+  interface SoldBid {
+    _id: string;
+    title: string;
+    buyer?: { name: string };
+    price: number;
+    soldPrice: number;
+    soldDate: string;
+  }
   const [balance, setBalance] = useState<number>(0);
   const [productCount, setProductCount] = useState<number>(0);
-  const [sellerProducts, setSellerProducts] = useState<any[]>([]);
+  const [soldBids, setSoldBids] = useState<SoldBid[]>([]);
 
   const [soldCount, setSoldCount] = useState<number>(0);
 
@@ -27,6 +35,9 @@ const SellerDashboard = () => {
         const sellerProducts = Array.isArray(productRes.data.products)
           ? productRes.data.products
           : [];
+        const { data } = await axios.get("/bid/allbid");
+        console.log("all sold bids---", data.soldBids);
+        setSoldCount(data.soldBids.length);
 
         setProductCount(sellerProducts.length);
       } catch (err) {

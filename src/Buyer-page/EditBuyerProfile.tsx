@@ -1,43 +1,96 @@
-// pages/BuyerEditProfile.jsx
+// pages/BuyerEditProfile.tsx
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import BuyerSidebar from "../components/BuyerSidebar";
+import axios from "../Service/axios";
+import profile from "../Images/Default.png"; // Assuming same default image
 
 const BuyerEditProfile = () => {
-  const [name, setName] = useState("Test Buyer");
-  const [email] = useState("buyer@gmail.com");
-  const [role] = useState("Buyer");
-  const [profilePic, setProfilePic] = useState(
-    "https://i.ibb.co/ZYW3VTp/brown-brim.png"
-  );
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [profilePic, setProfilePic] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleImageChange = (e: any) => {
-    const file = e.target.files[0];
+  // Fetch buyer profile on load
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get("/user/buyerprofile");
+        console.log(res);
+
+        const { name, email, role, photo } = res.data;
+        setName(name);
+        setEmail(email);
+        setRole(role);
+        setProfilePic(`http://localhost:4000${photo}`);
+      } catch (err) {
+        console.error("Failed to fetch profile", err);
+        alert("Failed to load buyer profile.");
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setProfilePic(imageUrl);
+      setSelectedFile(file);
     }
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // handle update logic here (e.g., API call)
-    alert("Profile updated successfully!");
+
+    const formData = new FormData();
+    formData.append("name", name);
+    if (selectedFile) {
+      formData.append("profilePic", selectedFile);
+    }
+
+    try {
+      const token = sessionStorage.getItem("token");
+      const res = await axios.put("/user/update-profile", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      alert("Profile updated successfully!");
+      const updated = res.data.user;
+      setProfilePic(`http://localhost:4000${updated.photo}`);
+    } catch (err) {
+      console.error("Error updating profile", err);
+      alert("Error updating profile");
+    }
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-100 py-10">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10">
       <BuyerSidebar />
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-8">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Edit Profile</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">
+          Edit Buyer Profile
+        </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6"
+          encType="multipart/form-data"
+        >
           {/* Profile Picture */}
           <div className="flex items-center gap-6">
             <img
               src={profilePic}
-              alt="Profile"
+              alt="Buyer Profile"
               className="w-24 h-24 rounded-full object-cover border"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = profile;
+              }}
             />
             <label className="block">
               <span className="sr-only">Choose profile photo</span>
@@ -50,8 +103,7 @@ const BuyerEditProfile = () => {
                   file:rounded-full file:border-0
                   file:text-sm file:font-semibold
                   file:bg-blue-100 file:text-blue-700
-                  hover:file:bg-blue-200
-                "
+                  hover:file:bg-blue-200"
               />
             </label>
           </div>

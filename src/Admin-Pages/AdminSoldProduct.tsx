@@ -22,12 +22,12 @@ const AdminSoldBidsPage = () => {
   useEffect(() => {
     const fetchSoldBids = async () => {
       try {
-        const response = await axios.get("/bid/allbid", {});
-        console.log(response.data);
+        const response = await axios.get("/bid/allbid");
+        console.log(response.data.soldBids);
         setSoldBids(response.data.soldBids || []);
       } catch (err) {
         console.error("Error fetching sold bids:", err);
-        setError("Failed to load sold bids");
+        setError("No sold bids found. Add product a see sold bid here.");
       } finally {
         setLoading(false);
       }

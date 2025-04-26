@@ -56,6 +56,7 @@ const AdminSidebar = () => {
           label="All Products"
           to="/admin/viewproduct"
         />
+        <SidebarItem icon="📦" label="My Products" to="/admin/adminproduct" />
         <SidebarItem
           icon={<FaTags />}
           label="Categories"
@@ -79,7 +80,7 @@ const AdminSidebar = () => {
         <SidebarItem
           icon={<FaHeart />}
           label="My Favourite"
-          to="/admin/income"
+          to="/underconstruction"
         />
         <SidebarItem
           icon={<FaUser />}

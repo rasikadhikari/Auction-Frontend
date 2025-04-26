@@ -36,13 +36,18 @@ const SellerSidebar = () => {
       <nav className="space-y-3 w-full">
         <SidebarItem icon="📊" label="Dashboard" to="/seller" />
         <SidebarItem icon="📦" label="My Products" to="/sellerproduct" />
+
         <SidebarItem
           icon={<FaPlus />}
           label="Create Product"
           to="/createproduct"
         />
         <SidebarItem icon={<FaTrophy />} label="Sold Bids" to="/soldproduct" />
-        <SidebarItem icon={<FaHeart />} label="My Favorites" to="/favorites" />
+        <SidebarItem
+          icon={<FaHeart />}
+          label="My Favorites"
+          to="/underconstruction"
+        />
         <SidebarItem
           icon={<FaUser />}
           label="Personal Profile"
