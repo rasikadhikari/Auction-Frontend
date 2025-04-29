@@ -2,25 +2,45 @@ import React, { useEffect, useState } from "react";
 import { FaEye, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import SellerSidebar from "../components/SellerSidebar";
 import axios from "../Service/axios";
+import { toast } from "react-toastify"; // Import Toastify (Optional but good UX)
 
 const SellerDetail = () => {
   const [products, setProducts] = useState<any[]>([]);
 
-  useEffect(() => {
-    const fetchSellerProducts = async () => {
-      try {
-        const res = await axios.get("/product/user", {
-          withCredentials: true,
-        });
-        setProducts(res.data.products || []);
-        console.log(res.data);
-      } catch (err) {
-        console.error("Failed to fetch seller products", err);
-      }
-    };
+  const fetchSellerProducts = async () => {
+    try {
+      const res = await axios.get("/product/user", {
+        withCredentials: true,
+      });
+      setProducts(res.data.products || []);
+      console.log(res.data);
+    } catch (err) {
+      console.error("Failed to fetch seller products", err);
+    }
+  };
 
+  useEffect(() => {
     fetchSellerProducts();
   }, []);
+
+  const handleSellProduct = async (productId: string) => {
+    try {
+      const res = await axios.post(
+        "/bid/sell",
+        { productId },
+        {
+          withCredentials: true,
+        }
+      );
+      toast.success(res.data.message || "Product sold successfully!");
+      fetchSellerProducts(); // Refresh product list
+    } catch (error: any) {
+      console.error("Failed to sell product", error);
+      toast.error(
+        error.response?.data?.message || "Failed to sell product. Try again."
+      );
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-start bg-gray-100 py-10">
@@ -75,10 +95,15 @@ const SellerDetail = () => {
                   <td className="px-6 py-4">
                     {product.isSoldout ? (
                       <span className="text-gray-600 text-sm">Sold</span>
-                    ) : (
-                      <button className="bg-gray-400 text-white px-3 py-1 rounded">
+                    ) : product.bidAmount ? (
+                      <button
+                        onClick={() => handleSellProduct(product._id)}
+                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+                      >
                         Sell
                       </button>
+                    ) : (
+                      <span className="text-gray-500 text-sm">No Bids</span>
                     )}
                   </td>
                   <td className="px-6 py-4 flex space-x-3">

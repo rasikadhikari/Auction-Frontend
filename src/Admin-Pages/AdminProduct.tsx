@@ -5,20 +5,37 @@ import axios from "../Service/axios";
 
 const AdminProductList = () => {
   const [adminProducts, setAdminProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch all admin products
+  const fetchAdminProducts = async () => {
+    try {
+      const res = await axios.get("/product/user", {
+        withCredentials: true,
+      });
+      setAdminProducts(res.data.products || []);
+    } catch (err) {
+      console.error("Failed to fetch admin products", err);
+    }
+  };
+
+  const handleSellProduct = async (productId: string) => {
+    try {
+      setLoading(true);
+      await axios.post(
+        "/bid/sell",
+        { productId }, // Pass productId inside body
+        { withCredentials: true }
+      );
+      await fetchAdminProducts(); // Refresh after selling
+    } catch (err) {
+      console.error("Failed to sell product", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAdminProducts = async () => {
-      try {
-        const res = await axios.get("/product/user", {
-          withCredentials: true,
-        });
-        setAdminProducts(res.data.products || []);
-        console.log(res.data);
-      } catch (err) {
-        console.error("Failed to fetch admin products", err);
-      }
-    };
-
     fetchAdminProducts();
   }, []);
 
@@ -57,7 +74,7 @@ const AdminProductList = () => {
                 <tr key={product._id} className="border-t">
                   <td className="px-6 py-4">{index + 1}</td>
                   <td className="px-6 py-4">{product.title}</td>
-                  <td className="px-6 py-4">{product.price}</td>
+                  <td className="px-6 py-4">${product.price}</td>
                   <td className="px-6 py-4">{product.bidAmount || "N/A"}</td>
                   <td className="px-6 py-4">
                     <img
@@ -78,8 +95,12 @@ const AdminProductList = () => {
                     {product.isSoldout ? (
                       <span className="text-gray-600 text-sm">Sold</span>
                     ) : (
-                      <button className="bg-gray-400 text-white px-3 py-1 rounded">
-                        Sell
+                      <button
+                        onClick={() => handleSellProduct(product._id)}
+                        disabled={loading}
+                        className="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded"
+                      >
+                        {loading ? "Selling..." : "Sell"}
                       </button>
                     )}
                   </td>

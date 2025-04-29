@@ -3,17 +3,8 @@ import SellerSidebar from "../components/SellerSidebar";
 import axios from "../Service/axios";
 
 const SellerDashboard = () => {
-  interface SoldBid {
-    _id: string;
-    title: string;
-    buyer?: { name: string };
-    price: number;
-    soldPrice: number;
-    soldDate: string;
-  }
   const [balance, setBalance] = useState<number>(0);
   const [productCount, setProductCount] = useState<number>(0);
-  const [soldBids, setSoldBids] = useState<SoldBid[]>([]);
 
   const [soldCount, setSoldCount] = useState<number>(0);
 

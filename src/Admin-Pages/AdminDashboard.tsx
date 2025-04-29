@@ -6,6 +6,8 @@ const AdminDashboard = () => {
   const [balance, setBalance] = useState<number>(0);
   const [userCount, setUserCount] = useState<number>(0);
   const [productCount, setProductCount] = useState<number>(0);
+  const [itemsWon, setItemsWon] = useState<number>(0);
+  const [myProduct, setMyProduct] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,8 +29,32 @@ const AdminDashboard = () => {
     };
 
     fetchData();
+    fetchMyproduct();
+    fetchItemWon();
   }, []);
 
+  const fetchItemWon = async () => {
+    try {
+      const res = await axios.get("bid/winning-bids", {
+        withCredentials: true,
+      });
+      const wonItems = res.data?.winningBids || [];
+
+      setItemsWon(wonItems.length);
+    } catch (err) {
+      console.error("faile to fetch product won:", err);
+    }
+  };
+  const fetchMyproduct = async () => {
+    try {
+      const res = await axios.get("/product/user");
+      const Myproduct = res.data.products;
+
+      setMyProduct(Myproduct.length);
+    } catch (err) {
+      console.error("failed to load my product:", err);
+    }
+  };
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-100">
       <AdminSidebar />
@@ -45,8 +71,18 @@ const AdminDashboard = () => {
             label="Balance"
             color="green"
           />
-          <StatCard icon="🏆" value="0" label="Items Won" color="green" />
-          <StatCard icon="🛍️" value="0" label="Your Products" color="green" />
+          <StatCard
+            icon="🏆"
+            value={`${itemsWon}`}
+            label="Items Won"
+            color="green"
+          />
+          <StatCard
+            icon="🛍️"
+            value={`${myProduct}`}
+            label="Your Products"
+            color="green"
+          />
           <StatCard
             icon="📦"
             value={`${productCount}`}

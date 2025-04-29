@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import BuyerSidebar from "../components/BuyerSidebar";
 import axios from "../Service/axios";
-import profile from "../Images/Default.png"; // Assuming same default image
+import profile from "../Images/Default.png";
 
 const BuyerEditProfile = () => {
   const [name, setName] = useState("");

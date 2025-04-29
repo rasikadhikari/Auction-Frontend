@@ -14,12 +14,7 @@ const AdminEditProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = sessionStorage.getItem("token");
-        const res = await axios.get("/user/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await axios.get("/user/profile");
         console.log(res.data);
 
         const { name, email, role, photo } = res.data;

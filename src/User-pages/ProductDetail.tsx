@@ -5,6 +5,8 @@ import axios from "../Service/axios";
 const ProductDetail = () => {
   const { id } = useParams();
   interface Product {
+    _id: string;
+    user: { name: string };
     title: string;
     price: number;
     image: string;
@@ -14,6 +16,7 @@ const ProductDetail = () => {
     mediumused?: string;
     description?: string;
     lengthPic?: number;
+    createdAt: string;
   }
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -98,6 +101,19 @@ const ProductDetail = () => {
 
         {/* Right side - Product Overview */}
         <div className="md:w-1/2 flex flex-col justify-center">
+          {product?._id && (
+            <p className="text-gray-700 mb-2">
+              Product Id: <span className="font-medium">{product._id}</span>
+            </p>
+          )}
+          {product?.user && (
+            <p className="text-gray-700 mb-2">
+              Item Owner:{" "}
+              <span className="font-medium">
+                {product.user?.name.toUpperCase()}
+              </span>
+            </p>
+          )}
           {product && (
             <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
           )}
@@ -130,6 +146,14 @@ const ProductDetail = () => {
             <p className="text-gray-700 mb-2">
               LengthPic:{" "}
               <span className="font-medium">{product.lengthPic}</span>
+            </p>
+          )}
+          {product?.createdAt && (
+            <p className="text-gray-700 mb-2">
+              Created At:{" "}
+              <span className="font-medium">
+                {new Date(product.createdAt).toLocaleDateString()}
+              </span>
             </p>
           )}
           {product?.description && (

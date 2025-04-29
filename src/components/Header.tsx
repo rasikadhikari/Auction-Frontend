@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
 import { GiHamburgerMenu } from "react-icons/gi";
 
@@ -7,6 +7,7 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const storedUser = sessionStorage.getItem("user");
@@ -14,10 +15,12 @@ const Header = () => {
       try {
         setUser(JSON.parse(storedUser));
       } catch (err) {
-        console.error("Failed to parse user from localStorage");
+        console.error("Failed to parse user from sessionStorage", err);
       }
+    } else {
+      setUser(null);
     }
-  }, []);
+  }, [location]); //
 
   const handleProfileClick = () => {
     if (!user) return;
@@ -39,7 +42,7 @@ const Header = () => {
 
   const handleProductsClick = () => {
     if (!user) {
-      navigate("/user/login"); // Default if not logged in
+      navigate("/user/login");
       return;
     }
 

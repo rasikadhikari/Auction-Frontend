@@ -103,6 +103,7 @@ const AdminAllProductsPage = () => {
                       <button
                         onClick={() => handleCommissionRedirect(product._id)}
                         className="text-yellow-600 hover:text-yellow-800"
+                        title="Commission"
                       >
                         <FaArchive />
                       </button>

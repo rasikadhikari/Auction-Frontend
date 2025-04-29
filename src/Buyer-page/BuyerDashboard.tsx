@@ -1,7 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import BuyerSidebar from "../components/BuyerSidebar";
+import axios from "../Service/axios"; // assume you have an axios file
 
 const BuyerDashboard = () => {
+  const [balancePending, setBalancePending] = useState<number>(0);
+  const [itemsWon, setItemsWon] = useState<number>(0);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const res = await axios.get("bid/winning-bids", {
+        withCredentials: true,
+      });
+      const wonItems = res.data?.winningBids || [];
+
+      const pending = wonItems.reduce(
+        (acc: number, item: any) => acc + (item.bidAmount || 0),
+        0
+      );
+
+      setItemsWon(wonItems.length);
+      setBalancePending(pending);
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen flex bg-gray-100 py-10 shadow-md">
       <BuyerSidebar />
@@ -13,14 +40,14 @@ const BuyerDashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <StatCard
             icon="💵"
-            value="0"
-            label="Balance"
+            value={`$${balancePending}`}
+            label="Balance pending"
             bg="bg-blue-50"
             border="border-blue-200"
           />
           <StatCard
             icon="🏅"
-            value="0"
+            value={`${itemsWon}`}
             label="Items Won"
             bg="bg-blue-50"
             border="border-blue-200"

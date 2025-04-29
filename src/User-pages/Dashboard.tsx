@@ -15,7 +15,7 @@ const Dashboard = () => {
     isVerify?: boolean;
   }
   const [auctions, setAuctions] = useState<Product[]>([]);
-
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [categories, setCategories] = useState<
     { _id: string; title: string }[]
   >([]);
@@ -31,7 +31,7 @@ const Dashboard = () => {
         if (categoryRes.data?.category) {
           setCategories(categoryRes.data.category);
         }
-        console.log(productRes.data);
+        console.log("product--------", productRes.data.product);
 
         if (productRes.data?.product) {
           const productsWithBids = await Promise.all(
@@ -43,7 +43,7 @@ const Dashboard = () => {
                     Authorization: `Bearer ${token}`,
                   },
                 });
-                console.log(res);
+
                 return { ...product, bidCount: res.data.bidCount || 0 };
               } catch (err) {
                 console.error(
@@ -71,10 +71,12 @@ const Dashboard = () => {
     if (!token) {
       navigate("/user/login");
     } else {
-      // ✅ Authorized - go to product detail page
       navigate(`/products/${productId}`);
     }
   };
+  const filteredAuctions = selectedCategory
+    ? auctions.filter((auction) => auction.category.title === selectedCategory)
+    : auctions;
 
   return (
     <div className="bg-blue-600 text-white min-h-screen px-6 py-12">
@@ -82,7 +84,7 @@ const Dashboard = () => {
         {/* Left Content */}
         <div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Build, sell & collect digital items.
+            Create, Sell & Earn digital items.
           </h1>
           <p className="text-gray-300 mb-6">
             Nulla facilisi. Maecenas ac tellus ut ligula interdum convallis.
@@ -105,15 +107,15 @@ const Dashboard = () => {
           {/* Stats */}
           <div className="mt-8 flex space-x-8 text-center">
             <div>
-              <h2 className="text-2xl font-bold">842M</h2>
+              <h2 className="text-2xl font-bold">{auctions.length}</h2>
               <p className="text-sm text-gray-300">Total Product</p>
             </div>
             <div>
-              <h2 className="text-2xl font-bold">842M</h2>
+              <h2 className="text-2xl font-bold">{auctions.length}</h2>
               <p className="text-sm text-gray-300">Total Auction</p>
             </div>
             <div>
-              <h2 className="text-2xl font-bold">54</h2>
+              <h2 className="text-2xl font-bold">{categories.length}</h2>
               <p className="text-sm text-gray-300">Total Category</p>
             </div>
           </div>
@@ -141,12 +143,11 @@ const Dashboard = () => {
 
           {/* Happy Client */}
           <div className="absolute bottom-[-3rem] left-0 bg-white text-gray-800 p-3 rounded-xl shadow-md text-sm w-fit">
-            <p className="font-semibold">58M Happy Client</p>
+            <p className="font-semibold">{auctions.length} Happy Client</p>
             <div className="flex mt-1 space-x-1">
               <span className="w-6 h-6 rounded-full bg-blue-500"></span>
               <span className="w-6 h-6 rounded-full bg-yellow-500"></span>
               <span className="w-6 h-6 rounded-full bg-pink-500"></span>
-              <span className="w-6 h-6 rounded-full bg-green-500"></span>
             </div>
           </div>
         </div>
@@ -163,7 +164,10 @@ const Dashboard = () => {
               {categories.map((category) => (
                 <div
                   key={category._id}
-                  className="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center justify-center border border-gray-100 hover:shadow-md transition"
+                  onClick={() => setSelectedCategory(category.title)} // 🆕 Set selected category
+                  className={`cursor-pointer bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center justify-center border border-gray-100 hover:shadow-md transition ${
+                    selectedCategory === category.title ? "bg-green-100" : ""
+                  }`}
                 >
                   <div className="text-emerald-800 text-2xl mb-2">📦</div>
                   <p className="font-medium text-gray-700 text-sm">
@@ -175,70 +179,79 @@ const Dashboard = () => {
 
             {/* Auction Items */}
             <h2 className="text-xl font-bold text-gray-800 mb-4">
-              Live Auctions
+              {selectedCategory
+                ? `${selectedCategory} Auctions`
+                : "Live Auctions"}
             </h2>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-              {auctions.map((item) => (
-                <div
-                  key={item._id}
-                  className="bg-white border border-gray-200 rounded-xl shadow hover:shadow-md transition overflow-hidden"
-                >
-                  <div className="relative">
-                    <img
-                      src={`http://localhost:4000${item.image}`}
-                      alt={item.title}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute top-2 left-2 bg-black bg-opacity-60 text-white text-xs px-3 py-1 rounded-full">
-                      {item.bidCount} {item.bidCount === 1 ? "Bid" : "Bids"}
+              {filteredAuctions.length > 0 ? (
+                filteredAuctions.map((item) => (
+                  <div
+                    key={item._id}
+                    className="bg-white border border-gray-200 rounded-xl shadow hover:shadow-md transition overflow-hidden"
+                  >
+                    {/* Product Card */}
+                    <div className="relative">
+                      <img
+                        src={`http://localhost:4000${item.image}`}
+                        alt={item.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute top-2 left-2 bg-black bg-opacity-60 text-white text-xs px-3 py-1 rounded-full">
+                        {item.bidCount} {item.bidCount === 1 ? "Bid" : "Bids"}
+                      </div>
+                      {item.isVerify ? (
+                        <div className="absolute bottom-2 right-2 bg-green-500 text-white text-xs px-3 py-1 rounded-full">
+                          Verified
+                        </div>
+                      ) : (
+                        <div className="absolute bottom-2 right-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full">
+                          Not Verified
+                        </div>
+                      )}
+                      <div
+                        className={`absolute top-2 right-2 text-white text-xs px-3 py-1 rounded-full ${
+                          item.isSoldout ? "bg-red-500" : "bg-green-500"
+                        }`}
+                      >
+                        {item.isSoldout ? "Sold Out" : "Available"}
+                      </div>
                     </div>
-                    {item.isVerify ? (
-                      <div className="absolute bottom-2 right-2 bg-green-500 text-white text-xs px-3 py-1 rounded-full">
-                        Verified
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-800 text-sm mb-1">
+                        {item.title}
+                      </h3>
+                      <div className="text-sm text-gray-600 mb-3">
+                        <p>
+                          <span className="font-medium">Current Bid:</span> $
+                          {item.price}
+                        </p>
+                        <p>
+                          <span className="font-medium">Buy Now:</span> $
+                          {item.price + 100}
+                        </p>
                       </div>
-                    ) : (
-                      <div className="absolute bottom-2 right-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full">
-                        Not Verified
-                      </div>
-                    )}
 
-                    <div
-                      className={`absolute top-2 right-2 text-white text-xs px-3 py-1 rounded-full ${
-                        item.isSoldout ? "bg-red-500" : "bg-green-500"
-                      }`}
-                    >
-                      {item.isSoldout ? "Sold Out" : "Available"}
+                      <button
+                        disabled={item.isSoldout}
+                        onClick={() => handlePlaceBid(item._id)}
+                        className={`bg-blue-600 text-white text-sm px-4 py-2 rounded-lg w-full transition ${
+                          item.isSoldout
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:bg-blue-700"
+                        }`}
+                      >
+                        {item.isSoldout ? "Sold Out" : "Place Bid"}
+                      </button>
                     </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-800 text-sm mb-1">
-                      {item.title}
-                    </h3>
-                    <div className="text-sm text-gray-600 mb-3">
-                      <p>
-                        <span className="font-medium">Current Bid:</span> $
-                        {item.price}
-                      </p>
-                      <p>
-                        <span className="font-medium">Buy Now:</span> $
-                        {item.price + 100}
-                      </p>
-                    </div>
-
-                    <button
-                      disabled={item.isSoldout}
-                      onClick={() => handlePlaceBid(item._id)}
-                      className={`bg-blue-600 text-white text-sm px-4 py-2 rounded-lg w-full transition ${
-                        item.isSoldout
-                          ? "opacity-50 cursor-not-allowed"
-                          : "hover:bg-blue-700"
-                      }`}
-                    >
-                      {item.isSoldout ? "Sold Out" : "Place Bid"}
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-600 text-center col-span-full">
+                  No products found for this category.
+                </p>
+              )}
             </div>
             {/* How Does Auction Work Section */}
             <div className="bg-blue-600 py-16 px-6">

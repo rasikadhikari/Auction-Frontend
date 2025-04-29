@@ -78,9 +78,6 @@ const AdminAllUsersPage = () => {
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-3 sm:px-6 py-4 flex gap-3 sm:gap-4">
-                      <button className="text-blue-600 hover:text-blue-800 text-sm sm:text-base">
-                        <FaEdit />
-                      </button>
                       <button className="text-red-600 hover:text-red-800 text-sm sm:text-base">
                         <FaTrashAlt />
                       </button>
