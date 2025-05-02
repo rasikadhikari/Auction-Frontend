@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaEye, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import { FaEye, FaEdit, FaTrash, FaPlus, FaEyeSlash } from "react-icons/fa";
 import SellerSidebar from "../components/SellerSidebar";
 import axios from "../Service/axios";
 import { toast } from "react-toastify"; // Import Toastify (Optional but good UX)
@@ -39,6 +39,39 @@ const SellerDetail = () => {
       toast.error(
         error.response?.data?.message || "Failed to sell product. Try again."
       );
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`/product/${productId}`, {
+        withCredentials: true,
+      });
+      toast.success("Product deleted successfully!");
+      fetchSellerProducts();
+    } catch (err: any) {
+      console.error("Failed to delete product", err);
+      toast.error(err.response?.data?.message || "Delete failed");
+    }
+  };
+
+  const handleArchiveProduct = async (productId: string) => {
+    try {
+      await axios.patch(
+        `/product/${productId}/archive`,
+        {},
+        { withCredentials: true }
+      );
+      toast.success("Product archived/unarchived successfully!");
+      fetchSellerProducts();
+    } catch (err: any) {
+      console.error("Failed to archive/unarchive product", err);
+      toast.error("Failed to update archive status.");
     }
   };
 
@@ -106,10 +139,26 @@ const SellerDetail = () => {
                       <span className="text-gray-500 text-sm">No Bids</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 flex space-x-3">
-                    <FaEye className="cursor-pointer text-blue-600" />
+                  <td className="px-6 py-4 flex space-x-3 items-center">
+                    {product.isArchived === true ||
+                    product.isArchived === "true" ? (
+                      <FaEyeSlash
+                        onClick={() => handleArchiveProduct(product._id)}
+                        className="cursor-pointer text-gray-600"
+                        title="Unarchive"
+                      />
+                    ) : (
+                      <FaEye
+                        onClick={() => handleArchiveProduct(product._id)}
+                        className="cursor-pointer text-blue-600"
+                        title="Archive"
+                      />
+                    )}
                     <FaEdit className="cursor-pointer text-green-600" />
-                    <FaTrash className="cursor-pointer text-red-600" />
+                    <FaTrash
+                      onClick={() => handleDeleteProduct(product._id)}
+                      className="cursor-pointer text-red-600"
+                    />
                   </td>
                 </tr>
               ))}

@@ -6,7 +6,7 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 import AdminSidebar from "../components/AdminSidebar";
-import axios from "../Service/axios"; // Make sure this points to your custom axios instance
+import axios from "../Service/axios";
 import { useNavigate } from "react-router-dom";
 
 interface Product {
@@ -41,12 +41,30 @@ const AdminAllProductsPage = () => {
   }, []);
 
   const handleCommissionRedirect = (productId: string) => {
-    console.log("Redirecting with ID:", productId); // debug log
+    console.log("Redirecting with ID:", productId);
     if (!productId) {
       console.error("Product ID is undefined!");
       return;
     }
     navigate(`/admin/commission/${productId}`);
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      const token = sessionStorage.getItem("token");
+      await axios.delete(`/product/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${token} `,
+        },
+      });
+      setProducts(products.filter((product) => product._id !== productId));
+      alert("Product deleted successfully");
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Failed to delete Product");
+    }
   };
 
   return (
@@ -108,7 +126,10 @@ const AdminAllProductsPage = () => {
                         <FaArchive />
                       </button>
 
-                      <button className="text-red-600 hover:text-red-800">
+                      <button
+                        onClick={() => handleDeleteProduct(product._id)}
+                        className="text-red-600 hover:text-red-800 text-sm sm:text-base"
+                      >
                         <FaTrashAlt />
                       </button>
                     </td>

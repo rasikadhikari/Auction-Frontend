@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "../Service/axios";
 import { useNavigate } from "react-router-dom";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const Dashboard = () => {
   interface Product {
@@ -19,6 +20,7 @@ const Dashboard = () => {
   const [categories, setCategories] = useState<
     { _id: string; title: string }[]
   >([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -63,6 +65,25 @@ const Dashboard = () => {
     };
     fetchAllData();
   }, []);
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      const token = sessionStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await axios.get("/wishlist", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const favoriteIds = res.data.wishlist.map(
+          (item: any) => item.productId
+        );
+        setWishlist(favoriteIds);
+      } catch (error) {
+        console.error("Error fetching wishlist:", error);
+      }
+    };
+    fetchWishlist();
+  }, []);
 
   const navigate = useNavigate();
 
@@ -77,6 +98,34 @@ const Dashboard = () => {
   const filteredAuctions = selectedCategory
     ? auctions.filter((auction) => auction.category.title === selectedCategory)
     : auctions;
+
+  const toggleWishlist = async (productId: string) => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      navigate("/user/login");
+      return;
+    }
+
+    try {
+      if (wishlist.includes(productId)) {
+        await axios.delete(`/wishlist/remove/${productId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setWishlist(wishlist.filter((id) => id !== productId));
+      } else {
+        await axios.post(
+          `/wishlist/add`,
+          { productId },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setWishlist([...wishlist, productId]);
+      }
+    } catch (error) {
+      console.error("Failed to update wishlist", error);
+    }
+  };
 
   return (
     <div className="bg-blue-600 text-white min-h-screen px-6 py-12">
@@ -191,33 +240,50 @@ const Dashboard = () => {
                     key={item._id}
                     className="bg-white border border-gray-200 rounded-xl shadow hover:shadow-md transition overflow-hidden"
                   >
-                    {/* Product Card */}
                     <div className="relative">
                       <img
                         src={`http://localhost:4000${item.image}`}
                         alt={item.title}
                         className="w-full h-48 object-cover"
                       />
+
+                      {/* 💖 Wishlist Icon - FIXED PLACEMENT */}
+                      <div
+                        className="absolute top-2 right-2 z-10 cursor-pointer"
+                        onClick={() => toggleWishlist(item._id)}
+                      >
+                        {wishlist.includes(item._id) ? (
+                          <FaHeart className="text-red-500 text-lg" />
+                        ) : (
+                          <FaRegHeart className="text-white text-lg" />
+                        )}
+                      </div>
+
+                      {/* Bid Count */}
                       <div className="absolute top-2 left-2 bg-black bg-opacity-60 text-white text-xs px-3 py-1 rounded-full">
                         {item.bidCount} {item.bidCount === 1 ? "Bid" : "Bids"}
                       </div>
-                      {item.isVerify ? (
-                        <div className="absolute bottom-2 right-2 bg-green-500 text-white text-xs px-3 py-1 rounded-full">
-                          Verified
-                        </div>
-                      ) : (
-                        <div className="absolute bottom-2 right-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full">
-                          Not Verified
-                        </div>
-                      )}
+
+                      {/* Verification & Status */}
                       <div
-                        className={`absolute top-2 right-2 text-white text-xs px-3 py-1 rounded-full ${
+                        className={`absolute bottom-2 right-2 text-white text-xs px-3 py-1 rounded-full ${
                           item.isSoldout ? "bg-red-500" : "bg-green-500"
                         }`}
                       >
                         {item.isSoldout ? "Sold Out" : "Available"}
                       </div>
+
+                      {item.isVerify ? (
+                        <div className="absolute bottom-2 left-2 bg-green-500 text-white text-xs px-3 py-1 rounded-full">
+                          Verified
+                        </div>
+                      ) : (
+                        <div className="absolute bottom-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full">
+                          Not Verified
+                        </div>
+                      )}
                     </div>
+
                     <div className="p-4">
                       <h3 className="font-semibold text-gray-800 text-sm mb-1">
                         {item.title}

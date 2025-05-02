@@ -77,7 +77,7 @@ const Header = () => {
               Products
             </span>
 
-            <Link to="/sell" className="hover:text-gray-200">
+            <Link to="/about" className="hover:text-gray-200">
               About
             </Link>
             <Link to="/contact" className="hover:text-gray-200">
@@ -151,7 +151,7 @@ const Header = () => {
             Products
           </span>
 
-          <Link to="/sell" className="hover:text-gray-200 p-2">
+          <Link to="/about" className="hover:text-gray-200 p-2">
             About
           </Link>
           <Link to="/contact" className="hover:text-gray-200 p-2">

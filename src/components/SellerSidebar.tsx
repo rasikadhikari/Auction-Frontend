@@ -79,7 +79,7 @@ const SellerSidebar = () => {
         <SidebarItem
           icon={<FaHeart />}
           label="My Favorites"
-          to="/underconstruction"
+          to="/sellerwishlist"
         />
         <SidebarItem
           icon={<FaUser />}

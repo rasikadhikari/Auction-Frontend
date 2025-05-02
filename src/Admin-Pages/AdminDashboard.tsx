@@ -1,6 +1,19 @@
 import React, { useEffect, useState } from "react";
 import AdminSidebar from "../components/AdminSidebar";
 import axios from "../Service/axios";
+import {
+  ResponsiveContainer,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 const AdminDashboard = () => {
   const [balance, setBalance] = useState<number>(0);
@@ -8,6 +21,12 @@ const AdminDashboard = () => {
   const [productCount, setProductCount] = useState<number>(0);
   const [itemsWon, setItemsWon] = useState<number>(0);
   const [myProduct, setMyProduct] = useState<number>(0);
+  const [barChartData, setBarChartData] = useState<
+    { name: string; users: number; products: number }[]
+  >([]);
+  const [pieChartData, setPieChartData] = useState<
+    { name: string; value: number }[]
+  >([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,6 +42,42 @@ const AdminDashboard = () => {
         const products = productRes.data.product;
         console.log(products);
         setProductCount(products.length);
+
+        const monthlyStats = Array(12)
+          .fill(null)
+          .map((_, i) => ({
+            name: new Date(0, i).toLocaleString("default", { month: "short" }),
+            users: 0,
+            products: 0,
+          }));
+
+        users.forEach((user: any) => {
+          const date = new Date(user.createdAt);
+          const monthIndex = date.getMonth();
+          monthlyStats[monthIndex].users += 1;
+        });
+
+        products.forEach((product: any) => {
+          const date = new Date(product.createdAt);
+          const monthIndex = date.getMonth();
+          monthlyStats[monthIndex].products += 1;
+        });
+
+        setBarChartData(monthlyStats);
+
+        // Count sold vs unsold products
+        let sold = 0;
+        let unsold = 0;
+
+        products.forEach((p: any) => {
+          if (p.status === "sold") sold += 1;
+          else unsold += 1;
+        });
+
+        setPieChartData([
+          { name: "Sold", value: sold },
+          { name: "Unsold", value: unsold },
+        ]);
       } catch (error) {
         console.error("Failed to fetch admin dashboard data", error);
       }
@@ -95,6 +150,48 @@ const AdminDashboard = () => {
             label="All Users"
             color="yellow"
           />
+        </div>
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 mt-8">
+          {/* Bar Chart: Monthly Stats */}
+          <div className="bg-white rounded-xl p-4 shadow">
+            <h2 className="text-lg font-semibold mb-4">
+              Monthly Users vs Products
+            </h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={barChartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="users" fill="#8884d8" name="Users" />
+                <Bar dataKey="products" fill="#82ca9d" name="Products" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Pie Chart: Sold vs Unsold */}
+          <div className="bg-white rounded-xl p-4 shadow">
+            <h2 className="text-lg font-semibold mb-4">Product Status</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={pieChartData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label
+                >
+                  <Cell fill="#8884d8" />
+                  <Cell fill="#82ca9d" />
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </main>
     </div>

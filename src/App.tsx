@@ -1,26 +1,31 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./Service/ProtectedRoute";
+import { AuthContext, AuthToken } from "./Context/AuthContext";
 
 // All user
 const Dashboard = lazy(() => import("./User-pages/Dashboard"));
 const ProductDetail = lazy(() => import("./User-pages/ProductDetail"));
 const NotAuthorized = lazy(() => import("./User-pages/403-Authpage"));
 const UnderConstruction = lazy(() => import("./User-pages/UnderConstruction"));
+const About = lazy(() => import("./User-pages/About"));
+const Contact = lazy(() => import("./User-pages/Contact"));
 // Buyer
 const BuyerDashboard = lazy(() => import("./Buyer-page/BuyerDashboard"));
 const EditBuyerProfile = lazy(() => import("./Buyer-page/EditBuyerProfile"));
 const BuyerWinningProducts = lazy(
   () => import("./Buyer-page/BuyerWinningProducts")
 );
+const BuyerWishlist = lazy(() => import("./Buyer-page/BuyerWishlist"));
 // seller
 const SellerDashboard = lazy(() => import("./Seller-page/SellerDashboard"));
 const SellerDetail = lazy(() => import("./Seller-page/SellerProduct"));
 const CreateProduct = lazy(() => import("./Seller-page/CreateProduct"));
 const EditSellerProfile = lazy(() => import("./Seller-page/EditSellerProfile"));
 const SellerSoldProduct = lazy(() => import("./Seller-page/SellerSoldproduct"));
+const SellerWishlist = lazy(() => import("./Seller-page/SellerWishlist"));
 // Admin
 const AdminDashboard = lazy(() => import("./Admin-Pages/AdminDashboard"));
 const AdminCategories = lazy(() => import("./Admin-Pages/AdminCategories"));
@@ -35,16 +40,34 @@ const AdminCommissionVerify = lazy(
   () => import("./Admin-Pages/AdminCommissionVerify")
 );
 const AdminOnlyProduct = lazy(() => import("./Admin-Pages/AdminProduct"));
+const AdminEditCategory = lazy(() => import("./Source-page/AdminEditCategory"));
+const AdminCreateCategory = lazy(
+  () => import("./Source-page/AdminCreateCategory")
+);
+const AdminWishlist = lazy(() => import("./Admin-Pages/AdminWishlist"));
 // Aunthentication
 const Login = lazy(() => import("./Authentication/Login"));
 const Signup = lazy(() => import("./Authentication/Signup"));
 const BecomeSeller = lazy(() => import("./Authentication/BecomeASeller"));
 
 function App() {
+  const [auth, setAuth] = useState<AuthToken>({
+    token: sessionStorage.getItem("token"),
+    user: sessionStorage.getItem("user")
+      ? JSON.parse(sessionStorage.getItem("user") as string)
+      : null,
+  });
+  const changeAuth = (token: string, user: any) => {
+    setAuth({ token, user });
+    sessionStorage.setItem("token", token);
+    sessionStorage.setItem("user", JSON.stringify(user));
+  };
   return (
-    <BrowserRouter>
-      <AuctionContent />
-    </BrowserRouter>
+    <AuthContext.Provider value={{ auth, changeAuth }}>
+      <BrowserRouter>
+        <AuctionContent />
+      </BrowserRouter>
+    </AuthContext.Provider>
   );
 }
 
@@ -61,6 +84,8 @@ function AuctionContent() {
               path="/underconstruction"
               element={<UnderConstruction />}
             ></Route>
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
             {/* Buyer routes */}
             <Route element={<ProtectedRoute allowedRoles={["buyer"]} />}>
               <Route path="/buyer" element={<BuyerDashboard />} />
@@ -69,6 +94,7 @@ function AuctionContent() {
                 path="/winningproduct"
                 element={<BuyerWinningProducts />}
               />
+              <Route path="/wishlist" element={<BuyerWishlist />} />
             </Route>
 
             {/* Seller Routes */}
@@ -78,6 +104,7 @@ function AuctionContent() {
               <Route path="/createproduct" element={<CreateProduct />} />
               <Route path="/editprofile" element={<EditSellerProfile />} />
               <Route path="/soldproduct" element={<SellerSoldProduct />} />
+              <Route path="/sellerwishlist" element={<SellerWishlist />} />
             </Route>
 
             {/* Authentication Routes*/}
@@ -97,7 +124,10 @@ function AuctionContent() {
               <Route path="createproduct" element={<AdminCreateProduct />} />
               <Route path="soldproduct" element={<AdminSoldProduct />} />
               <Route path="editprofile" element={<AdminEditProfile />} />
-              <Route path="adminproduct" element={<AdminOnlyProduct />}></Route>
+              <Route path="adminproduct" element={<AdminOnlyProduct />} />
+              <Route path="createcategory" element={<AdminCreateCategory />} />
+              <Route path="editcategory/:id" element={<AdminEditCategory />} />
+              <Route path="wishlist" element={<AdminWishlist />} />
               <Route
                 path="commission/:id"
                 element={<AdminCommissionVerify />}

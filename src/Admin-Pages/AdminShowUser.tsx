@@ -33,6 +33,19 @@ const AdminAllUsersPage = () => {
     fetchUsers();
   }, []);
 
+  const handleDelete = async (userId: string) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      await axios.delete(`/user/${userId}`);
+      setUsers((prev) => prev.filter((user) => user._id !== userId));
+      alert("User deleted successfully");
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Failed to delete user");
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-100 py-10">
       <AdminSidebar />
@@ -78,7 +91,10 @@ const AdminAllUsersPage = () => {
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-3 sm:px-6 py-4 flex gap-3 sm:gap-4">
-                      <button className="text-red-600 hover:text-red-800 text-sm sm:text-base">
+                      <button
+                        onClick={() => handleDelete(user._id)}
+                        className="text-red-600 hover:text-red-800 text-sm sm:text-base"
+                      >
                         <FaTrashAlt />
                       </button>
                     </td>

@@ -114,7 +114,7 @@ const AdminSidebar = () => {
         <SidebarItem
           icon={<FaHeart />}
           label="My Favourite"
-          to="/underconstruction"
+          to="/admin/wishlist"
         />
         <SidebarItem
           icon={<FaUser />}

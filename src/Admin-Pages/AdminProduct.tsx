@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { FaEye, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
-import AdminSidebar from "../components/AdminSidebar"; // assume you have an Admin Sidebar
+import { FaEye, FaEyeSlash, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import AdminSidebar from "../components/AdminSidebar";
 import axios from "../Service/axios";
 
 const AdminProductList = () => {
   const [adminProducts, setAdminProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
 
-  // Fetch all admin products
   const fetchAdminProducts = async () => {
     try {
       const res = await axios.get("/product/user", {
@@ -22,14 +22,45 @@ const AdminProductList = () => {
   const handleSellProduct = async (productId: string) => {
     try {
       setLoading(true);
-      await axios.post(
-        "/bid/sell",
-        { productId }, // Pass productId inside body
-        { withCredentials: true }
-      );
-      await fetchAdminProducts(); // Refresh after selling
+      await axios.post("/bid/sell", { productId }, { withCredentials: true });
+      await fetchAdminProducts();
     } catch (err) {
       console.error("Failed to sell product", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      setLoading(true);
+      await axios.delete(`/product/${productId}`, {
+        withCredentials: true,
+      });
+      await fetchAdminProducts();
+    } catch (err) {
+      console.error("Failed to delete product", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleArchiveProduct = async (productId: string) => {
+    try {
+      setLoading(true);
+      await axios.patch(
+        `/product/${productId}/archive`,
+        {},
+        { withCredentials: true }
+      );
+      await fetchAdminProducts();
+    } catch (err) {
+      console.error("Failed to archive/unarchive product", err);
     } finally {
       setLoading(false);
     }
@@ -39,19 +70,32 @@ const AdminProductList = () => {
     fetchAdminProducts();
   }, []);
 
+  const visibleProducts = adminProducts.filter((product) => {
+    const isArchived =
+      product.isArchived === true || product.isArchived === "true";
+    return showArchived ? true : !isArchived;
+  });
+
   return (
     <div className="min-h-screen flex items-start bg-gray-100 py-10">
       <AdminSidebar />
 
-      {/* Admin Product Table (Right Side) */}
       <div className="w-full md:w-3/4 p-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">
             Admin Product Lists
           </h2>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2">
-            <FaPlus /> Create Admin Product
-          </button>
+          <div className="flex gap-4">
+            <button
+              className="bg-yellow-500 text-white px-4 py-2 rounded"
+              onClick={() => setShowArchived(!showArchived)}
+            >
+              {showArchived ? "Hide Archived" : "Show Archived"}
+            </button>
+            <button className="bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2">
+              <FaPlus /> Create Admin Product
+            </button>
+          </div>
         </div>
 
         <div className="overflow-x-auto rounded-lg bg-white shadow-md">
@@ -63,14 +107,13 @@ const AdminProductList = () => {
                 <th className="px-6 py-3">Price</th>
                 <th className="px-6 py-3">Bid Amount</th>
                 <th className="px-6 py-3">Image</th>
-                <th className="px-6 py-3">Created By</th>
                 <th className="px-6 py-3">Verify</th>
                 <th className="px-6 py-3">Sold</th>
                 <th className="px-6 py-3">Action</th>
               </tr>
             </thead>
             <tbody>
-              {adminProducts.map((product, index) => (
+              {visibleProducts.map((product, index) => (
                 <tr key={product._id} className="border-t">
                   <td className="px-6 py-4">{index + 1}</td>
                   <td className="px-6 py-4">{product.title}</td>
@@ -83,7 +126,6 @@ const AdminProductList = () => {
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   </td>
-                  <td className="px-6 py-4">{product.createdBy || "Admin"}</td>
                   <td className="px-6 py-4 font-bold text-sm">
                     {product.isVerify ? (
                       <span className="text-green-600">Yes</span>
@@ -104,13 +146,36 @@ const AdminProductList = () => {
                       </button>
                     )}
                   </td>
-                  <td className="px-6 py-4 flex space-x-3">
-                    <FaEye className="cursor-pointer text-blue-600" />
+                  <td className="px-6 py-4 flex space-x-3 items-center">
+                    {product.isArchived === true ||
+                    product.isArchived === "true" ? (
+                      <FaEyeSlash
+                        onClick={() => handleArchiveProduct(product._id)}
+                        className="cursor-pointer text-gray-600"
+                        title="Unarchive"
+                      />
+                    ) : (
+                      <FaEye
+                        onClick={() => handleArchiveProduct(product._id)}
+                        className="cursor-pointer text-blue-600"
+                        title="Archive"
+                      />
+                    )}
                     <FaEdit className="cursor-pointer text-green-600" />
-                    <FaTrash className="cursor-pointer text-red-600" />
+                    <FaTrash
+                      onClick={() => handleDeleteProduct(product._id)}
+                      className="cursor-pointer text-red-600"
+                    />
                   </td>
                 </tr>
               ))}
+              {visibleProducts.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="text-center py-4 text-gray-500">
+                    No products found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

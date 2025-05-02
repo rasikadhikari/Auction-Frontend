@@ -72,11 +72,7 @@ const BuyerSidebar = () => {
           label="Winning Bids"
           to="/winningproduct"
         />
-        <SidebarItem
-          icon={<FaHeart />}
-          label="My Favorites"
-          to="/underconstruction"
-        />
+        <SidebarItem icon={<FaHeart />} label="My Favorites" to="/wishlist" />
         <SidebarItem
           icon={<FaUser />}
           label="Personal Profile"
