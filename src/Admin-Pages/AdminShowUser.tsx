@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { FaTrashAlt } from "react-icons/fa";
 import AdminSidebar from "../components/AdminSidebar";
 import axios from "../Service/axios";
 import profile from "../Images/Default.png";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface User {
   _id: string;
@@ -24,6 +26,7 @@ const AdminAllUsersPage = () => {
       setUsers(res.data || []);
     } catch (err) {
       console.error("Failed to fetch users:", err);
+      toast.error("Failed to fetch users");
     } finally {
       setLoading(false);
     }
@@ -39,10 +42,10 @@ const AdminAllUsersPage = () => {
     try {
       await axios.delete(`/user/${userId}`);
       setUsers((prev) => prev.filter((user) => user._id !== userId));
-      alert("User deleted successfully");
+      toast.success("User deleted successfully");
     } catch (err) {
       console.error("Delete failed:", err);
-      alert("Failed to delete user");
+      toast.error("Failed to delete user");
     }
   };
 
@@ -105,6 +108,8 @@ const AdminAllUsersPage = () => {
           </div>
         )}
       </div>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

@@ -14,6 +14,8 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminDashboard = () => {
   const [balance, setBalance] = useState<number>(0);
@@ -40,7 +42,7 @@ const AdminDashboard = () => {
 
         const productRes = await axios.get("/product");
         const products = productRes.data.product;
-        console.log(products);
+
         setProductCount(products.length);
 
         const monthlyStats = Array(12)
@@ -65,7 +67,6 @@ const AdminDashboard = () => {
 
         setBarChartData(monthlyStats);
 
-        // Count sold vs unsold products
         let sold = 0;
         let unsold = 0;
 
@@ -78,8 +79,11 @@ const AdminDashboard = () => {
           { name: "Sold", value: sold },
           { name: "Unsold", value: unsold },
         ]);
+
+        toast.success("Dashboard data loaded successfully!");
       } catch (error) {
         console.error("Failed to fetch admin dashboard data", error);
+        toast.error("Failed to load dashboard data.");
       }
     };
 
@@ -94,24 +98,27 @@ const AdminDashboard = () => {
         withCredentials: true,
       });
       const wonItems = res.data?.winningBids || [];
-
       setItemsWon(wonItems.length);
     } catch (err) {
-      console.error("faile to fetch product won:", err);
+      console.error("Failed to fetch product won:", err);
+      toast.error("Failed to fetch items won.");
     }
   };
+
   const fetchMyproduct = async () => {
     try {
       const res = await axios.get("/product/user");
       const Myproduct = res.data.products;
-
       setMyProduct(Myproduct.length);
     } catch (err) {
-      console.error("failed to load my product:", err);
+      console.error("Failed to load my product:", err);
+      toast.error("Failed to fetch your products.");
     }
   };
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-100">
+      <ToastContainer />
       <AdminSidebar />
 
       <main className="flex-1 p-4 sm:p-6 md:p-8">
@@ -151,8 +158,8 @@ const AdminDashboard = () => {
             color="yellow"
           />
         </div>
+
         <div className="grid gap-6 grid-cols-1 md:grid-cols-2 mt-8">
-          {/* Bar Chart: Monthly Stats */}
           <div className="bg-white rounded-xl p-4 shadow">
             <h2 className="text-lg font-semibold mb-4">
               Monthly Users vs Products
@@ -170,7 +177,6 @@ const AdminDashboard = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* Pie Chart: Sold vs Unsold */}
           <div className="bg-white rounded-xl p-4 shadow">
             <h2 className="text-lg font-semibold mb-4">Product Status</h2>
             <ResponsiveContainer width="100%" height={300}>

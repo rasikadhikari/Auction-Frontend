@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../Context/AuthContext";
 import axios from "../Service/axios";
 import AdminSidebar from "../components/AdminSidebar";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface WishlistItem {
   _id: string;
@@ -25,13 +27,16 @@ const AdminWishlist = () => {
           const response = await axios.get("/wishlist");
           setWishlist(response.data.wishlist);
           console.log("Admin wishlist:", response.data.wishlist);
+          toast.success("Wishlist loaded successfully");
         } catch (error) {
           console.error("Error fetching admin wishlist:", error);
+          toast.error("Failed to load wishlist");
         } finally {
           setLoading(false);
         }
       } else {
         setLoading(false);
+        toast.error("You are not authorized to view the wishlist");
       }
     };
 
@@ -97,6 +102,9 @@ const AdminWishlist = () => {
           </div>
         )}
       </div>
+
+      {/* Toast Notifications */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

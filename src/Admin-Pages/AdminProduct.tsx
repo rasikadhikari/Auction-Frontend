@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import AdminSidebar from "../components/AdminSidebar";
 import axios from "../Service/axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminProductList = () => {
   const [adminProducts, setAdminProducts] = useState<any[]>([]);
@@ -16,6 +18,7 @@ const AdminProductList = () => {
       setAdminProducts(res.data.products || []);
     } catch (err) {
       console.error("Failed to fetch admin products", err);
+      toast.error("Failed to load admin products");
     }
   };
 
@@ -24,8 +27,10 @@ const AdminProductList = () => {
       setLoading(true);
       await axios.post("/bid/sell", { productId }, { withCredentials: true });
       await fetchAdminProducts();
+      toast.success("Product sold successfully!");
     } catch (err) {
       console.error("Failed to sell product", err);
+      toast.error("Failed to sell product");
     } finally {
       setLoading(false);
     }
@@ -43,8 +48,10 @@ const AdminProductList = () => {
         withCredentials: true,
       });
       await fetchAdminProducts();
+      toast.success("Product deleted successfully!");
     } catch (err) {
       console.error("Failed to delete product", err);
+      toast.error("Failed to delete product");
     } finally {
       setLoading(false);
     }
@@ -59,8 +66,10 @@ const AdminProductList = () => {
         { withCredentials: true }
       );
       await fetchAdminProducts();
+      toast.success("Product archive status updated!");
     } catch (err) {
       console.error("Failed to archive/unarchive product", err);
+      toast.error("Failed to update archive status");
     } finally {
       setLoading(false);
     }
@@ -81,6 +90,7 @@ const AdminProductList = () => {
       <AdminSidebar />
 
       <div className="w-full md:w-3/4 p-8">
+        <ToastContainer />
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">
             Admin Product Lists

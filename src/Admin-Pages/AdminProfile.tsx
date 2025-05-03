@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import AdminSidebar from "../components/AdminSidebar";
 import axios from "../Service/axios";
 import profile from "../Images/Default.png";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminEditProfile = () => {
   const [name, setName] = useState("");
@@ -10,23 +12,19 @@ const AdminEditProfile = () => {
   const [profilePic, setProfilePic] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // Fetch admin profile on load
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await axios.get("/user/profile");
-        console.log(res.data);
-
         const { name, email, role, photo } = res.data;
 
         setName(name);
         setEmail(email);
         setRole(role);
         setProfilePic(`http://localhost:4000${photo}`);
-        console.log(photo);
       } catch (err) {
         console.error("Failed to fetch profile", err);
-        alert("Failed to load admin profile.");
+        toast.error("Failed to load admin profile.");
       }
     };
 
@@ -35,14 +33,11 @@ const AdminEditProfile = () => {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    console.log(file);
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      console.log(imageUrl);
       setProfilePic(imageUrl);
       setSelectedFile(file);
     }
-    console.log(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,7 +48,6 @@ const AdminEditProfile = () => {
     if (selectedFile) {
       formData.append("profilePic", selectedFile);
     }
-    console.log(formData.get("profilePic"));
 
     try {
       const token = sessionStorage.getItem("token");
@@ -64,13 +58,12 @@ const AdminEditProfile = () => {
         },
       });
 
-      alert("Profile updated successfully!");
       const updated = res.data.user;
-      console.log(updated);
       setProfilePic(`http://localhost:4000${updated.photo}`);
+      toast.success("Profile updated successfully!");
     } catch (err) {
       console.error("Error updating profile", err);
-      alert("Error updating profile");
+      toast.error("Error updating profile");
     }
   };
 
@@ -87,7 +80,6 @@ const AdminEditProfile = () => {
           className="space-y-6"
           encType="multipart/form-data"
         >
-          {/* Profile Picture */}
           <div className="flex items-center gap-6">
             <img
               src={profilePic}
@@ -108,13 +100,11 @@ const AdminEditProfile = () => {
                   file:rounded-full file:border-0
                   file:text-sm file:font-semibold
                   file:bg-green-100 file:text-green-700
-                  hover:file:bg-green-200
-                "
+                  hover:file:bg-green-200"
               />
             </label>
           </div>
 
-          {/* Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Name
@@ -128,7 +118,6 @@ const AdminEditProfile = () => {
             />
           </div>
 
-          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Email
@@ -141,7 +130,6 @@ const AdminEditProfile = () => {
             />
           </div>
 
-          {/* Role */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Role
@@ -154,7 +142,6 @@ const AdminEditProfile = () => {
             />
           </div>
 
-          {/* Submit */}
           <div className="flex justify-end">
             <button
               type="submit"
@@ -165,6 +152,8 @@ const AdminEditProfile = () => {
           </div>
         </form>
       </div>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

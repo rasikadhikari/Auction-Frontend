@@ -21,6 +21,10 @@ const Dashboard = () => {
     { _id: string; title: string }[]
   >([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOption, setSortOption] = useState("");
+  const [showVerifiedOnly, setShowVerifiedOnly] = useState(false);
+  const [showAvailableOnly, setShowAvailableOnly] = useState(false);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -33,11 +37,11 @@ const Dashboard = () => {
         if (categoryRes.data?.category) {
           setCategories(categoryRes.data.category);
         }
-        console.log("product--------", productRes.data.product);
+        console.log("product--------", productRes.data.products);
 
-        if (productRes.data?.product) {
+        if (productRes.data?.products) {
           const productsWithBids = await Promise.all(
-            productRes.data.product.map(async (product: Product) => {
+            productRes.data.products.map(async (product: Product) => {
               try {
                 const token = sessionStorage.getItem("token");
                 const res = await axios.get(`bid/bid-count/${product._id}`, {
@@ -95,9 +99,30 @@ const Dashboard = () => {
       navigate(`/products/${productId}`);
     }
   };
-  const filteredAuctions = selectedCategory
-    ? auctions.filter((auction) => auction.category.title === selectedCategory)
-    : auctions;
+  const filteredAuctions = auctions
+    .filter((auction) => {
+      const matchesCategory = selectedCategory
+        ? auction.category.title === selectedCategory
+        : true;
+      const matchesSearch = auction.title
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesVerified = showVerifiedOnly ? auction.isVerify : true;
+      const matchesAvailable = showAvailableOnly ? !auction.isSoldout : true;
+
+      return (
+        matchesCategory && matchesSearch && matchesVerified && matchesAvailable
+      );
+    })
+    .sort((a, b) => {
+      if (sortOption === "lowToHigh") return a.price - b.price;
+      if (sortOption === "highToLow") return b.price - a.price;
+      if (sortOption === "newest")
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      return 0;
+    });
 
   const toggleWishlist = async (productId: string) => {
     const token = sessionStorage.getItem("token");
@@ -145,9 +170,12 @@ const Dashboard = () => {
           <div className="flex bg-white rounded-full overflow-hidden shadow-lg max-w-xl">
             <input
               type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search product..."
               className="flex-grow px-4 py-2 text-gray-800 focus:outline-none"
             />
+
             <button className="bg-green-500 text-white px-6 font-semibold">
               Search
             </button>
@@ -227,13 +255,46 @@ const Dashboard = () => {
             </div>
 
             {/* Auction Items */}
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
+            <h2 className="text-xl font-bold text-gray-800">
               {selectedCategory
                 ? `${selectedCategory} Auctions`
                 : "Live Auctions"}
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+              <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
+                {/* Sort By Price */}
+                <select
+                  className="bg-gray-100 p-2 rounded-md text-gray-800"
+                  onChange={(e) => setSortOption(e.target.value)}
+                >
+                  <option value="">Sort by</option>
+                  <option value="lowToHigh">Price: Low to High</option>
+                  <option value="highToLow">Price: High to Low</option>
+                  <option value="newest">Newest</option>
+                </select>
+
+                {/* Toggle Verified Only */}
+                <label className="flex items-center space-x-2 text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={showVerifiedOnly}
+                    onChange={() => setShowVerifiedOnly(!showVerifiedOnly)}
+                  />
+                  <span>Verified Only</span>
+                </label>
+
+                {/* Toggle Available Only */}
+                <label className="flex items-center space-x-2 text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={showAvailableOnly}
+                    onChange={() => setShowAvailableOnly(!showAvailableOnly)}
+                  />
+                  <span>Available Only</span>
+                </label>
+              </div>
+
               {filteredAuctions.length > 0 ? (
                 filteredAuctions.map((item) => (
                   <div

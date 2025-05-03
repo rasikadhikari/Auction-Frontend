@@ -8,6 +8,8 @@ import {
 import AdminSidebar from "../components/AdminSidebar";
 import axios from "../Service/axios";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Product {
   _id: string;
@@ -31,6 +33,7 @@ const AdminAllProductsPage = () => {
       setProducts(res.data.product || []);
     } catch (err) {
       console.error("Failed to fetch products:", err);
+      toast.error("Failed to fetch products.");
     } finally {
       setLoading(false);
     }
@@ -50,7 +53,8 @@ const AdminAllProductsPage = () => {
   };
 
   const handleDeleteProduct = async (productId: string) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    if (!window.confirm("Are you sure you want to delete this product?"))
+      return;
 
     try {
       const token = sessionStorage.getItem("token");
@@ -60,10 +64,10 @@ const AdminAllProductsPage = () => {
         },
       });
       setProducts(products.filter((product) => product._id !== productId));
-      alert("Product deleted successfully");
+      toast.success("Product deleted successfully");
     } catch (err) {
       console.error("Delete failed:", err);
-      alert("Failed to delete Product");
+      toast.error("Failed to delete product");
     }
   };
 
@@ -140,6 +144,9 @@ const AdminAllProductsPage = () => {
           </div>
         )}
       </div>
+
+      {/* Toast Notifications */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

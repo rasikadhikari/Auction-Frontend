@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
-
 import AdminSidebar from "../components/AdminSidebar";
 import axios from "../Service/axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminSoldBidsPage = () => {
   interface SoldBid {
@@ -25,9 +26,11 @@ const AdminSoldBidsPage = () => {
         const response = await axios.get("/bid/allbid");
         console.log(response.data.soldBids);
         setSoldBids(response.data.soldBids || []);
+        toast.success("Sold bids fetched successfully!");
       } catch (err) {
         console.error("Error fetching sold bids:", err);
-        setError("No sold bids found. Add product a see sold bid here.");
+        setError("No sold bids found. Add product and see sold bid here.");
+        toast.error("Failed to fetch sold bids.");
       } finally {
         setLoading(false);
       }
@@ -91,6 +94,9 @@ const AdminSoldBidsPage = () => {
           </div>
         )}
       </div>
+
+      {/* Toast Notifications */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

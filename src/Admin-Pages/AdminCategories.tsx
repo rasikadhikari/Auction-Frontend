@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import AdminSidebar from "../components/AdminSidebar";
-import axios from "../Service/axios"; // Adjust if you use a different axios instance
+import axios from "../Service/axios";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import CSS
+
 interface Category {
   _id: string;
   title: string;
@@ -19,10 +22,10 @@ const AdminCategoryPage = () => {
   const fetchCategories = async () => {
     try {
       const res = await axios.get("/category");
-      console.log(res.data);
       setCategories(res.data.category || []);
     } catch (error) {
       console.error("Failed to fetch categories:", error);
+      toast.error("Failed to fetch categories");
     } finally {
       setLoading(false);
     }
@@ -31,7 +34,9 @@ const AdminCategoryPage = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
   const navigate = useNavigate();
+
   const handleDelete = async (id: string) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this category?"
@@ -44,19 +49,20 @@ const AdminCategoryPage = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      alert("Category deleted successfully");
+      toast.success("Category deleted successfully");
       fetchCategories(); // refresh the list
     } catch (error: any) {
-      alert(error?.response?.data?.message || "Failed to delete the category");
+      toast.error(
+        error?.response?.data?.message || "Failed to delete the category"
+      );
     }
   };
 
   return (
     <div className="min-h-screen flex bg-gray-100 py-10">
       <AdminSidebar />
-
+      <ToastContainer /> {/* 🔔 Toast container */}
       <div className="w-full md:w-3/4 p-8">
-        {/* Header with Create Category Button */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Category List</h1>
           <button
@@ -67,7 +73,6 @@ const AdminCategoryPage = () => {
           </button>
         </div>
 
-        {/* Category Table */}
         {loading ? (
           <p className="text-center text-gray-500">Loading categories...</p>
         ) : (

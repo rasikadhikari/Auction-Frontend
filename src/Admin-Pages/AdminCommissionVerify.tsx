@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "../Service/axios";
 import { useParams } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Product {
   _id: string;
@@ -12,7 +14,7 @@ interface Product {
 }
 
 const VerifyProductPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // Correct param name from URL
+  const { id } = useParams<{ id: string }>();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [commission, setCommission] = useState<number | "">(0);
@@ -26,6 +28,7 @@ const VerifyProductPage: React.FC = () => {
         setProduct(response.data.product);
       } catch (err) {
         setError("Product not found.");
+        toast.error("Product not found.");
       }
     };
 
@@ -41,6 +44,7 @@ const VerifyProductPage: React.FC = () => {
   const handleVerifyProduct = async () => {
     if (typeof commission !== "number" || commission <= 0) {
       setError("Commission must be a positive number.");
+      toast.error("Commission must be a positive number.");
       return;
     }
 
@@ -49,13 +53,13 @@ const VerifyProductPage: React.FC = () => {
         commission,
       });
       setSuccessMessage(response.data.message);
-      setError(null); // Clear previous errors if successful
+      setError(null);
+      toast.success(response.data.message || "Product verified successfully.");
     } catch (err: any) {
-      if (err.response) {
-        setError(err.response.data.message);
-      } else {
-        setError("An error occurred. Please try again.");
-      }
+      const errorMsg =
+        err?.response?.data?.message || "An error occurred. Please try again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
@@ -117,6 +121,7 @@ const VerifyProductPage: React.FC = () => {
           </div>
         )}
       </div>
+      <ToastContainer />
     </div>
   );
 };

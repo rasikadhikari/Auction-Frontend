@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import AdminSidebar from "../components/AdminSidebar";
 import axios from "../Service/axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminCreateProduct = () => {
   const [formData, setFormData] = useState({
@@ -27,6 +29,7 @@ const AdminCreateProduct = () => {
         setCategories(res.data.category);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
+        toast.error("Failed to fetch categories.");
       }
     };
     fetchCategories();
@@ -59,10 +62,10 @@ const AdminCreateProduct = () => {
       const res = await axios.post("/product", submitData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert(res.data.message);
+      toast.success(res.data.message || "Product created successfully.");
     } catch (err) {
       console.error(err);
-      alert("Failed to create product.");
+      toast.error("Failed to create product.");
     }
   };
 
@@ -181,6 +184,7 @@ const AdminCreateProduct = () => {
           </form>
         </div>
       </main>
+      <ToastContainer />
     </div>
   );
 };
