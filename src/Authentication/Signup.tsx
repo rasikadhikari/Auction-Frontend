@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../Service/axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -24,11 +26,13 @@ const SignUp = () => {
       });
 
       console.log("Signup successful:", response.data);
-      alert("Account created successfully!");
+      toast.success("Account created successfully!");
       navigate("/user/login");
     } catch (err: any) {
       console.error("Signup error:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Something went wrong!");
+      const errorMsg = err.response?.data?.message || "Something went wrong!";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -110,6 +114,7 @@ const SignUp = () => {
           </Link>
         </p>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

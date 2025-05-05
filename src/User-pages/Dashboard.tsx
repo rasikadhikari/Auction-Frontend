@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "../Service/axios";
 import { useNavigate } from "react-router-dom";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
   interface Product {
@@ -36,6 +37,7 @@ const Dashboard = () => {
 
         if (categoryRes.data?.category) {
           setCategories(categoryRes.data.category);
+          toast.success("Categories loaded successfully!");
         }
         console.log("product--------", productRes.data.products);
 
@@ -62,13 +64,16 @@ const Dashboard = () => {
           );
 
           setAuctions(productsWithBids);
+          toast.success("Products loaded successfully!");
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
+        toast.error("Failed to load dashboard data. Please try again.");
       }
     };
     fetchAllData();
   }, []);
+
   useEffect(() => {
     const fetchWishlist = async () => {
       const token = sessionStorage.getItem("token");
@@ -82,8 +87,10 @@ const Dashboard = () => {
           (item: any) => item.productId
         );
         setWishlist(favoriteIds);
+        toast.success("Wishlist loaded successfully!");
       } catch (error) {
         console.error("Error fetching wishlist:", error);
+        toast.error("Failed to load wishlist. Please try again.");
       }
     };
     fetchWishlist();
@@ -95,10 +102,12 @@ const Dashboard = () => {
     const token = sessionStorage.getItem("token");
     if (!token) {
       navigate("/user/login");
+      toast.info("Please login to place a bid");
     } else {
       navigate(`/products/${productId}`);
     }
   };
+
   const filteredAuctions = auctions
     .filter((auction) => {
       const matchesCategory = selectedCategory
@@ -128,6 +137,7 @@ const Dashboard = () => {
     const token = sessionStorage.getItem("token");
     if (!token) {
       navigate("/user/login");
+      toast.info("Please login to manage your wishlist");
       return;
     }
 
@@ -137,6 +147,7 @@ const Dashboard = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setWishlist(wishlist.filter((id) => id !== productId));
+        toast.success("Removed from wishlist!");
       } else {
         await axios.post(
           `/wishlist/add`,
@@ -146,9 +157,11 @@ const Dashboard = () => {
           }
         );
         setWishlist([...wishlist, productId]);
+        toast.success("Added to wishlist!");
       }
     } catch (error) {
       console.error("Failed to update wishlist", error);
+      toast.error("Failed to update wishlist. Please try again.");
     }
   };
 

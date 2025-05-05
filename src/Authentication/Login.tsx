@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../Service/axios";
 import { jwtDecode } from "jwt-decode";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   interface DecodedToken {
@@ -36,16 +38,16 @@ const Login = () => {
       // Save user data
       sessionStorage.setItem("user", JSON.stringify(decoded));
 
-      alert("Login successful!");
+      toast.success("Login successful!");
 
       // Redirect based on role
       if (decoded.role === "buyer") navigate("/buyer");
       else if (decoded.role === "seller") navigate("/seller");
       else if (decoded.role === "admin") navigate("/admin/dashboard");
-      else alert("Unknown user role!");
+      else toast.error("Unknown user role!");
     } catch (err: any) {
       console.error("Login error:", err);
-      alert(err.response?.data?.message || "Login failed. Try again.");
+      toast.error(err.response?.data?.message || "Login failed. Try again.");
     }
   };
 
@@ -125,6 +127,7 @@ const Login = () => {
           </Link>
         </p>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

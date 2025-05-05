@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../Service/axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BecomeSeller = () => {
   const [name, setName] = useState("");
@@ -15,14 +17,14 @@ const BecomeSeller = () => {
         name,
         email,
         password,
-        role: "seller", // 🔥 Important
+        role: "seller",
       });
 
-      alert("Seller account created successfully!");
+      toast.success("Seller account created successfully!");
       console.log(response.data);
     } catch (err: any) {
       console.error("Error during seller registration:", err);
-      alert(err.response?.data?.message || "Something went wrong!");
+      toast.error(err.response?.data?.message || "Something went wrong!");
     }
   };
 
@@ -102,6 +104,8 @@ const BecomeSeller = () => {
           </Link>
         </p>
       </div>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

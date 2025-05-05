@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import SellerSidebar from "../components/SellerSidebar";
 import axios from "../Service/axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SellerDashboard = () => {
   const [balance, setBalance] = useState<number>(0);
@@ -31,8 +33,11 @@ const SellerDashboard = () => {
         setSoldCount(data.soldBids.length);
 
         setProductCount(sellerProducts.length);
+
+        toast.success("Dashboard data loaded successfully!");
       } catch (err) {
         console.error("Error fetching seller data:", err);
+        toast.error("Failed to load dashboard data");
       }
     };
 

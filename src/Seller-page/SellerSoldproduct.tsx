@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import SellerSidebar from "../components/SellerSidebar"; // Or AdminSidebar
 import axios from "../Service/axios";
+import { toast } from "react-toastify";
 
 const SoldBidsPage = () => {
   interface SoldBid {
@@ -22,8 +23,10 @@ const SoldBidsPage = () => {
         const { data } = await axios.get("/bid/allbid");
         console.log(data.soldBids);
         setSoldBids(data.soldBids);
+        toast.success("Sold bids loaded successfully!");
       } catch (error) {
         console.error("Error fetching sold bids:", error);
+        toast.error("Failed to load sold bids. Please try again.");
       } finally {
         setLoading(false);
       }

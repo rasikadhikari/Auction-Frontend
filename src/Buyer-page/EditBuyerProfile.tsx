@@ -1,9 +1,9 @@
-// pages/BuyerEditProfile.tsx
-
 import React, { useEffect, useState } from "react";
 import BuyerSidebar from "../components/BuyerSidebar";
 import axios from "../Service/axios";
 import profile from "../Images/Default.png";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BuyerEditProfile = () => {
   const [name, setName] = useState("");
@@ -26,7 +26,7 @@ const BuyerEditProfile = () => {
         setProfilePic(`http://localhost:4000${photo}`);
       } catch (err) {
         console.error("Failed to fetch profile", err);
-        alert("Failed to load buyer profile.");
+        toast.error("Failed to load buyer profile.");
       }
     };
 
@@ -60,12 +60,12 @@ const BuyerEditProfile = () => {
         },
       });
 
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
       const updated = res.data.user;
       setProfilePic(`http://localhost:4000${updated.photo}`);
     } catch (err) {
       console.error("Error updating profile", err);
-      alert("Error updating profile");
+      toast.error("Error updating profile");
     }
   };
 
@@ -159,6 +159,8 @@ const BuyerEditProfile = () => {
           </div>
         </form>
       </div>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

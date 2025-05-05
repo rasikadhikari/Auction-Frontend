@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../Context/AuthContext";
 import axios from "../Service/axios";
 import BuyerSidebar from "../components/BuyerSidebar";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface WishlistItem {
   _id: string;
@@ -27,11 +29,12 @@ const BuyerWishlist = () => {
           console.log("wishlist----", response.data.wishlist);
         } catch (error) {
           console.error("Error fetching buyer wishlist:", error);
+          toast.error("Failed to fetch wishlist.");
         } finally {
           setLoading(false);
         }
       } else {
-        setLoading(false); // stop loading if not buyer
+        setLoading(false);
       }
     };
 
@@ -98,6 +101,8 @@ const BuyerWishlist = () => {
           </div>
         )}
       </div>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

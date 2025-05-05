@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import BuyerSidebar from "../components/BuyerSidebar";
 import axios from "../Service/axios"; // assume you have an axios file
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BuyerDashboard = () => {
   const [balancePending, setBalancePending] = useState<number>(0);
@@ -26,6 +28,7 @@ const BuyerDashboard = () => {
       setBalancePending(pending);
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
+      toast.error("Failed to load dashboard data.");
     }
   };
 
@@ -61,6 +64,7 @@ const BuyerDashboard = () => {
           />
         </div>
       </main>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

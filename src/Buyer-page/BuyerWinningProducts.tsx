@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-
 import BuyerSidebar from "../components/BuyerSidebar";
 import axios from "../Service/axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BuyerWinningProducts = () => {
   interface WinningItem {
@@ -26,6 +27,7 @@ const BuyerWinningProducts = () => {
         setWinningItems(response.data.winningBids);
       } catch (error) {
         console.error("Error fetching winning bids:", error);
+        toast.error("Failed to load winning bids.");
       }
     };
 
@@ -91,6 +93,7 @@ const BuyerWinningProducts = () => {
           )}
         </div>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

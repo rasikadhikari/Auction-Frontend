@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../Context/AuthContext";
 import axios from "../Service/axios";
 import SellerSidebar from "../components/SellerSidebar";
+import { toast } from "react-toastify";
 
 interface WishlistItem {
   _id: string;
@@ -25,8 +26,10 @@ const SellerWishlist = () => {
           const response = await axios.get("/wishlist");
           setWishlist(response.data.wishlist);
           console.log("Seller wishlist:", response.data.wishlist);
+          toast.success("Wishlist loaded successfully!");
         } catch (error) {
           console.error("Error fetching seller wishlist:", error);
+          toast.error("Failed to load wishlist. Please try again.");
         } finally {
           setLoading(false);
         }
