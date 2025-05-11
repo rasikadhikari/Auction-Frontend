@@ -30,7 +30,7 @@ const AdminAllProductsPage = () => {
     try {
       const res = await axios.get("/product");
       console.log(res.data);
-      setProducts(res.data.product || []);
+      setProducts(res.data.products || []);
     } catch (err) {
       console.error("Failed to fetch products:", err);
       toast.error("Failed to fetch products.");

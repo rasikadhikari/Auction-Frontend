@@ -41,7 +41,7 @@ const AdminDashboard = () => {
         setUserCount(users.length);
 
         const productRes = await axios.get("/product");
-        const products = productRes.data.product;
+        const products = productRes.data.products;
 
         setProductCount(products.length);
 
@@ -101,7 +101,6 @@ const AdminDashboard = () => {
       setItemsWon(wonItems.length);
     } catch (err) {
       console.error("Failed to fetch product won:", err);
-      toast.error("Failed to fetch items won.");
     }
   };
 

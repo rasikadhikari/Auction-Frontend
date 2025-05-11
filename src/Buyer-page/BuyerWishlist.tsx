@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 interface WishlistItem {
   _id: string;
   product: {
+    _id: string;
     title: string;
     price: number;
     isSoldout: boolean;
@@ -41,6 +42,21 @@ const BuyerWishlist = () => {
     fetchWishlist();
   }, [auth]);
 
+  const handleRemove = async (productId: string) => {
+    try {
+      await axios.delete(`/wishlist/remove/${productId}`, {
+        withCredentials: true,
+      });
+      setWishlist((prev) =>
+        prev.filter((item) => item.product?._id !== productId)
+      );
+      toast.success("Removed from wishlist");
+    } catch (error) {
+      console.error("Failed to remove from wishlist", error);
+      toast.error("Failed to remove item.");
+    }
+  };
+
   return (
     <div className="min-h-screen flex bg-gray-100 py-10">
       <BuyerSidebar />
@@ -64,6 +80,7 @@ const BuyerWishlist = () => {
                   <th className="px-6 py-3">Price ($)</th>
                   <th className="px-6 py-3">Status</th>
                   <th className="px-6 py-3">Added Date</th>
+                  <th className="px-6 py-3">Remove</th>
                 </tr>
               </thead>
               <tbody>
@@ -88,11 +105,18 @@ const BuyerWishlist = () => {
                         </span>
                       )}
                     </td>
-
                     <td className="px-6 py-4">
                       {item.product?.createdAt
                         ? new Date(item.product.createdAt).toLocaleDateString()
                         : "N/A"}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleRemove(item.product?._id)}
+                        className="text-red-600 hover:text-red-800 font-semibold"
+                      >
+                        ❌
+                      </button>
                     </td>
                   </tr>
                 ))}

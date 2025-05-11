@@ -41,6 +41,7 @@ const AdminAllUsersPage = () => {
 
     try {
       await axios.delete(`/user/${userId}`);
+      console.log("Successfull deleted user of ID: ", userId);
       setUsers((prev) => prev.filter((user) => user._id !== userId));
       toast.success("User deleted successfully");
     } catch (err) {

@@ -7,20 +7,19 @@ import "react-toastify/dist/ReactToastify.css";
 const SellerDashboard = () => {
   const [balance, setBalance] = useState<number>(0);
   const [productCount, setProductCount] = useState<number>(0);
-
   const [soldCount, setSoldCount] = useState<number>(0);
 
   useEffect(() => {
     const fetchSellerData = async () => {
       try {
-        const res = await axios.get("/user", {
+        // ✅ This is the fixed API call to only get the logged-in seller's dashboard data
+        const res = await axios.get("/user/seller/dashboard", {
           withCredentials: true,
         });
-        const seller = res.data.find((u: any) => u.role === "seller");
-        setBalance(seller?.balance || 0);
 
-        console.log(res.data); // Logged-in seller
+        const data = res.data;
 
+        setBalance(data.balance || 0);
         const productRes = await axios.get("/product/user", {
           withCredentials: true,
         });
@@ -28,15 +27,19 @@ const SellerDashboard = () => {
         const sellerProducts = Array.isArray(productRes.data.products)
           ? productRes.data.products
           : [];
-        const { data } = await axios.get("/bid/allbid");
-        console.log("all sold bids---", data.soldBids);
-        setSoldCount(data.soldBids.length);
+        const { data: bidData } = await axios.get("/bid/allbid");
+        console.log("all sold bids---", bidData.soldBids);
+        setSoldCount(bidData.soldBids.length);
 
         setProductCount(sellerProducts.length);
 
         toast.success("Dashboard data loaded successfully!");
+
+        console.log("✅ Logged-in seller dashboard data:", data);
+
+        toast.success("Dashboard data loaded successfully!");
       } catch (err) {
-        console.error("Error fetching seller data:", err);
+        console.error("❌ Error fetching seller dashboard data:", err);
         toast.error("Failed to load dashboard data");
       }
     };
@@ -56,19 +59,19 @@ const SellerDashboard = () => {
         <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
             icon="💰"
-            value={`Rs ${balance ?? "Loading..."}`}
+            value={`Rs ${balance}`}
             label="Balance"
             color="green"
           />
           <StatCard
             icon="🏅"
-            value={`${soldCount}`}
+            value={soldCount}
             label="Items Sold"
             color="blue"
           />
           <StatCard
             icon="🛍️"
-            value={`${productCount}`}
+            value={productCount}
             label="Your Products"
             color="yellow"
           />

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "../Service/axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -8,6 +8,7 @@ const BecomeSeller = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleBecomeSeller = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,6 +23,7 @@ const BecomeSeller = () => {
 
       toast.success("Seller account created successfully!");
       console.log(response.data);
+      navigate("/user/login");
     } catch (err: any) {
       console.error("Error during seller registration:", err);
       toast.error(err.response?.data?.message || "Something went wrong!");

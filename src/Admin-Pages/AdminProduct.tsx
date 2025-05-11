@@ -4,6 +4,7 @@ import AdminSidebar from "../components/AdminSidebar";
 import axios from "../Service/axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 const AdminProductList = () => {
   const [adminProducts, setAdminProducts] = useState<any[]>([]);
@@ -84,7 +85,7 @@ const AdminProductList = () => {
       product.isArchived === true || product.isArchived === "true";
     return showArchived ? true : !isArchived;
   });
-
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen flex items-start bg-gray-100 py-10">
       <AdminSidebar />
@@ -171,7 +172,23 @@ const AdminProductList = () => {
                         title="Archive"
                       />
                     )}
-                    <FaEdit className="cursor-pointer text-green-600" />
+                    {product.isSoldout ? (
+                      <FaEdit
+                        className="text-gray-400 cursor-not-allowed"
+                        title="Product is sold and cannot be edited"
+                      />
+                    ) : (
+                      <FaEdit
+                        className="cursor-pointer text-green-600"
+                        title="Edit Product"
+                        onClick={() =>
+                          navigate("/admin/admineditproduct", {
+                            state: { product },
+                          })
+                        }
+                      />
+                    )}
+
                     <FaTrash
                       onClick={() => handleDeleteProduct(product._id)}
                       className="cursor-pointer text-red-600"

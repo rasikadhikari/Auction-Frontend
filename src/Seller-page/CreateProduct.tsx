@@ -62,6 +62,7 @@ const SellerCreateProduct = () => {
       const res = await axios.post("/product", submitData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      console.log(res);
       toast.success(res.data.message || "Product created successfully!");
     } catch (err) {
       console.error(err);
@@ -156,10 +157,14 @@ const SellerCreateProduct = () => {
             />
 
             <div className="space-y-2">
-              <label className="block text-gray-600 font-medium">
+              <label
+                htmlFor="image"
+                className="block text-gray-600 font-medium"
+              >
                 Upload Image
               </label>
               <input
+                id="image"
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}

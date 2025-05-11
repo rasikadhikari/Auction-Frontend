@@ -28,6 +28,7 @@ const Login = () => {
       });
 
       const { token, user } = response.data;
+      console.log("login successful", response);
 
       // Save token
       sessionStorage.setItem("token", token);
@@ -52,9 +53,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-green-300 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-400 px-4">
       <div className="bg-white shadow-lg rounded-2xl p-8 max-w-md w-full">
-        <h2 className="text-3xl font-bold text-center text-green-700 mb-2">
+        <h2 className="text-3xl font-bold text-center text-blue-700 mb-2">
           Welcome Back 👋
         </h2>
         <p className="text-center text-gray-500 mb-6">Log in to your account</p>
@@ -110,7 +111,7 @@ const Login = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md text-lg font-medium transition"
+            className="w-full bg-blue-600 hover:bg-blue-800 text-white py-2 rounded-md text-lg font-medium transition"
           >
             Login
           </button>
@@ -121,7 +122,7 @@ const Login = () => {
           Don't have an account?{" "}
           <Link
             to="/user/signup"
-            className="text-green-600 font-medium hover:underline"
+            className="text-blue-600 font-medium hover:underline"
           >
             Sign up here
           </Link>

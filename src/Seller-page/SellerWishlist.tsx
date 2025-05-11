@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 interface WishlistItem {
   _id: string;
   product: {
+    _id: string;
     title: string;
     price: number;
     isSoldout: boolean;
@@ -41,6 +42,26 @@ const SellerWishlist = () => {
     fetchWishlist();
   }, [auth]);
 
+  const handleRemoveFromWishlist = async (productId: string) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to remove this item from the wishlist?"
+      )
+    )
+      return;
+
+    try {
+      await axios.delete(`/wishlist/remove/${productId}`);
+      setWishlist((prev) =>
+        prev.filter((item) => item.product && item.product._id !== productId)
+      );
+      toast.success("Item removed from wishlist");
+    } catch (error) {
+      console.error("Failed to remove from wishlist:", error);
+      toast.error("Failed to remove item from wishlist");
+    }
+  };
+
   return (
     <div className="min-h-screen flex bg-gray-100 py-10">
       <SellerSidebar />
@@ -57,20 +78,23 @@ const SellerWishlist = () => {
         ) : (
           <div className="overflow-x-auto bg-white rounded-lg shadow">
             <table className="min-w-full text-sm text-left text-gray-700">
-              <thead className="bg-yellow-100 text-gray-700 uppercase text-xs">
+              <thead className="bg-purple-100 text-gray-700 uppercase text-xs">
                 <tr>
                   <th className="px-6 py-3">S.N</th>
                   <th className="px-6 py-3">Product Name</th>
                   <th className="px-6 py-3">Price ($)</th>
                   <th className="px-6 py-3">Status</th>
                   <th className="px-6 py-3">Added Date</th>
+                  <th className="px-6 py-3">Action</th>
                 </tr>
               </thead>
+
               <tbody>
                 {wishlist.map((item, index) => (
                   <tr
                     key={item._id || index}
                     className="border-b hover:bg-gray-50"
+                    aria-label={`wishlist-item-${item.product.title}`}
                   >
                     <td className="px-6 py-4">{index + 1}</td>
                     <td className="px-6 py-4 font-medium">
@@ -92,6 +116,18 @@ const SellerWishlist = () => {
                       {item.product?.createdAt
                         ? new Date(item.product.createdAt).toLocaleDateString()
                         : "N/A"}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        aria-label="Wishlist"
+                        onClick={() =>
+                          handleRemoveFromWishlist(item.product._id)
+                        }
+                        className="text-red-600 hover:text-red-800 text-sm"
+                        title="Remove from Wishlist"
+                      >
+                        ❌
+                      </button>
                     </td>
                   </tr>
                 ))}

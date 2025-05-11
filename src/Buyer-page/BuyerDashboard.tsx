@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BuyerSidebar from "../components/BuyerSidebar";
 import axios from "../Service/axios"; // assume you have an axios file
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const BuyerDashboard = () => {
@@ -18,7 +18,7 @@ const BuyerDashboard = () => {
         withCredentials: true,
       });
       const wonItems = res.data?.winningBids || [];
-
+      console.log(res);
       const pending = wonItems.reduce(
         (acc: number, item: any) => acc + (item.bidAmount || 0),
         0
@@ -28,7 +28,6 @@ const BuyerDashboard = () => {
       setBalancePending(pending);
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
-      toast.error("Failed to load dashboard data.");
     }
   };
 

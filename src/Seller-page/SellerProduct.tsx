@@ -2,18 +2,19 @@ import React, { useEffect, useState } from "react";
 import { FaEye, FaEdit, FaTrash, FaPlus, FaEyeSlash } from "react-icons/fa";
 import SellerSidebar from "../components/SellerSidebar";
 import axios from "../Service/axios";
-import { toast } from "react-toastify"; // Import Toastify (Optional but good UX)
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const SellerDetail = () => {
   const [products, setProducts] = useState<any[]>([]);
-
+  const navigate = useNavigate();
   const fetchSellerProducts = async () => {
     try {
       const res = await axios.get("/product/user", {
         withCredentials: true,
       });
       setProducts(res.data.products || []);
-      console.log(res.data);
+      console.log(res.data.products);
     } catch (err) {
       console.error("Failed to fetch seller products", err);
     }
@@ -52,6 +53,7 @@ const SellerDetail = () => {
       await axios.delete(`/product/${productId}`, {
         withCredentials: true,
       });
+      console.log("Deleted product of id:", productId);
       toast.success("Product deleted successfully!");
       fetchSellerProducts();
     } catch (err: any) {
@@ -83,7 +85,10 @@ const SellerDetail = () => {
       <div className="w-full md:w-3/4 p-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Product Lists</h2>
-          <button className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2">
+          <button
+            className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2"
+            onClick={() => navigate("/createproduct")}
+          >
             <FaPlus /> Create Product
           </button>
         </div>
@@ -154,8 +159,23 @@ const SellerDetail = () => {
                         title="Archive"
                       />
                     )}
-                    <FaEdit className="cursor-pointer text-green-600" />
+                    {product.isSoldout ? (
+                      <FaEdit
+                        className="text-gray-400 cursor-not-allowed"
+                        title="Product is sold and cannot be edited"
+                      />
+                    ) : (
+                      <FaEdit
+                        className="cursor-pointer text-green-600"
+                        title="Edit Product"
+                        onClick={() =>
+                          navigate("/editproduct", { state: { product } })
+                        }
+                      />
+                    )}
+
                     <FaTrash
+                      title="Delete"
                       onClick={() => handleDeleteProduct(product._id)}
                       className="cursor-pointer text-red-600"
                     />

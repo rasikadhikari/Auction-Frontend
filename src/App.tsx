@@ -26,6 +26,7 @@ const CreateProduct = lazy(() => import("./Seller-page/CreateProduct"));
 const EditSellerProfile = lazy(() => import("./Seller-page/EditSellerProfile"));
 const SellerSoldProduct = lazy(() => import("./Seller-page/SellerSoldproduct"));
 const SellerWishlist = lazy(() => import("./Seller-page/SellerWishlist"));
+const SellerEditProduct = lazy(() => import("./Source-page/SellerEditProduct"));
 // Admin
 const AdminDashboard = lazy(() => import("./Admin-Pages/AdminDashboard"));
 const AdminCategories = lazy(() => import("./Admin-Pages/AdminCategories"));
@@ -34,6 +35,7 @@ const AdminViewProduct = lazy(() => import("./Admin-Pages/AdminViewProduct"));
 const AdminCreateProduct = lazy(
   () => import("./Admin-Pages/AdminCreateproduct")
 );
+const AdminEditProduct = lazy(() => import("./Source-page/AdminEditProduct"));
 const AdminSoldProduct = lazy(() => import("./Admin-Pages/AdminSoldProduct"));
 const AdminEditProfile = lazy(() => import("./Admin-Pages/AdminProfile"));
 const AdminCommissionVerify = lazy(
@@ -75,7 +77,13 @@ function AuctionContent() {
   return (
     <div>
       <Layout>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center h-screen bg-white">
+              <div className="w-12 h-12 border-4 border-[#155DFC] border-t-transparent rounded-full animate-spin" />
+            </div>
+          }
+        >
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/products/:id" element={<ProductDetail />} />
@@ -105,6 +113,7 @@ function AuctionContent() {
               <Route path="/editprofile" element={<EditSellerProfile />} />
               <Route path="/soldproduct" element={<SellerSoldProduct />} />
               <Route path="/sellerwishlist" element={<SellerWishlist />} />
+              <Route path="/editproduct" element={<SellerEditProduct />} />
             </Route>
 
             {/* Authentication Routes*/}
@@ -128,6 +137,7 @@ function AuctionContent() {
               <Route path="createcategory" element={<AdminCreateCategory />} />
               <Route path="editcategory/:id" element={<AdminEditCategory />} />
               <Route path="wishlist" element={<AdminWishlist />} />
+              <Route path="admineditproduct" element={<AdminEditProduct />} />
               <Route
                 path="commission/:id"
                 element={<AdminCommissionVerify />}

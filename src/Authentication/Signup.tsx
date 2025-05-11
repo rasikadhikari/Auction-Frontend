@@ -39,9 +39,9 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-green-300 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-400 px-4">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-green-700 mb-2">
+        <h2 className="text-3xl font-bold text-center text-blue-700 mb-2">
           Create Account
         </h2>
         <p className="text-center text-gray-500 mb-6">
@@ -97,7 +97,7 @@ const SignUp = () => {
 
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md text-lg font-medium transition"
+            className="w-full bg-blue-600 hover:bg-blue-800 text-white py-2 rounded-md text-lg font-medium transition"
             disabled={loading}
           >
             {loading ? "Signing up..." : "Sign Up"}
@@ -108,7 +108,7 @@ const SignUp = () => {
           Already have an account?{" "}
           <Link
             to="/user/login"
-            className="text-green-600 font-medium hover:underline"
+            className="text-blue-600 font-medium hover:underline"
           >
             Login here
           </Link>

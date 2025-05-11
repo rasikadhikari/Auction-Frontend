@@ -63,6 +63,9 @@ const Header = () => {
   return (
     <header className="bg-blue-600 text-white px-6 py-4 relative z-50">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <h1 className="text-white text-xl font-serif tracking-wide animate-fadeSlideIn">
+          Fotheby’s <span className="italic font-light">Auction</span>
+        </h1>
         {/* Left: Nav */}
         <div className="flex items-center space-x-8">
           {/* Desktop Nav */}
@@ -86,9 +89,11 @@ const Header = () => {
           </nav>
         </div>
 
-        {/* Right: Search + Auth */}
         <div className="flex items-center space-x-4">
-          <FiSearch className="text-xl cursor-pointer hover:text-gray-200" />
+          <FiSearch
+            onClick={() => navigate("/")}
+            className="text-xl cursor-pointer hover:text-gray-200"
+          />
 
           {!user ? (
             <>
@@ -130,7 +135,32 @@ const Header = () => {
           </button>
         </div>
       </div>
+      <style>
+        {`
+        @keyframes fadeSlideIn {
+          0% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
 
+        .animate-fadeSlideIn {
+          animation: fadeSlideIn 0.8s ease-out forwards;
+        }
+
+        .delay-200 {
+          animation-delay: 0.2s;
+        }
+
+        .delay-300 {
+          animation-delay: 0.3s;
+        }
+      `}
+      </style>
       {/* Mobile Menu */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${

@@ -166,6 +166,7 @@ const ProductDetail = () => {
                 className="w-full h-96 object-contain rounded-lg"
               />
               <button
+                aria-label="Toggle Wishlist"
                 onClick={toggleWishlist}
                 className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md"
               >

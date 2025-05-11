@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 interface WishlistItem {
   _id: string;
   product: {
+    _id: string;
     title: string;
     price: number;
     isSoldout: boolean;
@@ -42,6 +43,25 @@ const AdminWishlist = () => {
 
     fetchWishlist();
   }, [auth]);
+  const handleRemoveFromWishlist = async (productId: string) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to remove this item from the wishlist?"
+      )
+    )
+      return;
+
+    try {
+      await axios.delete(`/wishlist/remove/${productId}`);
+      setWishlist((prev) =>
+        prev.filter((item) => item.product && item.product._id !== productId)
+      );
+      toast.success("Item removed from wishlist");
+    } catch (error) {
+      console.error("Failed to remove from wishlist:", error);
+      toast.error("Failed to remove item from wishlist");
+    }
+  };
 
   return (
     <div className="min-h-screen flex bg-gray-100 py-10">
@@ -66,6 +86,7 @@ const AdminWishlist = () => {
                   <th className="px-6 py-3">Price ($)</th>
                   <th className="px-6 py-3">Status</th>
                   <th className="px-6 py-3">Added Date</th>
+                  <th className="px-6 py-3">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -94,6 +115,17 @@ const AdminWishlist = () => {
                       {item.product?.createdAt
                         ? new Date(item.product.createdAt).toLocaleDateString()
                         : "N/A"}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() =>
+                          handleRemoveFromWishlist(item.product._id)
+                        }
+                        className="text-red-600 hover:text-red-800 text-sm"
+                        title="Remove from Wishlist"
+                      >
+                        ❌
+                      </button>
                     </td>
                   </tr>
                 ))}
