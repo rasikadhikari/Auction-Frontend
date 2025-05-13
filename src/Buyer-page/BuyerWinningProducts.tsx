@@ -27,7 +27,6 @@ const BuyerWinningProducts = () => {
         setWinningItems(response.data.winningBids);
       } catch (error) {
         console.error("Error fetching winning bids:", error);
-        toast.error("Failed to load winning bids.");
       }
     };
 

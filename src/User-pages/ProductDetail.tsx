@@ -54,17 +54,22 @@ const ProductDetail = () => {
     fetchWishlist();
   }, []);
 
-  useEffect(() => {
-    const fetchBids = async () => {
-      try {
-        const res = await axios.get(`/bid/${id}`);
-        setBids(res.data.bids);
-      } catch (error) {
-        console.error("Error fetching bids:", error);
-        toast.error("Failed to load bid history. Please try again.");
-      }
-    };
+  const fetchBids = async () => {
+    try {
+      const res = await axios.get(`/bid/bidding-history/${id}`, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+        },
+      });
+      setBids(res.data?.bidding || []);
+      console.log("v=bidding---->", res.data);
+    } catch (error) {
+      console.error("Error fetching bids:", error);
+      toast.error("Failed to load bid history. Please try again.");
+    }
+  };
 
+  useEffect(() => {
     fetchBids();
   }, [id]);
 
@@ -110,17 +115,21 @@ const ProductDetail = () => {
 
     try {
       await axios.post(
-        `/bid/place/${id}`,
-        { bidAmount },
+        `/bid/bidding/${id}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          productId: id,
+          price: Number(bidAmount),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
+
       toast.success("Bid placed successfully!");
-      // Refresh bids
-      const res = await axios.get(`/bid/${id}`);
-      setBids(res.data.bids);
       setBidAmount("");
+      await fetchBids(); // Refresh bid list after placing a bid
     } catch (error: any) {
       console.error("Failed to place bid:", error);
       toast.error(
@@ -262,13 +271,13 @@ const ProductDetail = () => {
                       >
                         <div>
                           <p className="font-medium">
-                            {index + 1}. {bid.buyer?.name || "Anonymous"}
+                            {index + 1}. {bid.user?.name || "Anonymous"}
                           </p>
                           <p className="text-sm text-gray-500">
                             {new Date(bid.createdAt).toLocaleString()}
                           </p>
                         </div>
-                        <p className="font-bold">${bid.bidAmount}</p>
+                        <p className="font-bold">${bid.price}</p>
                       </div>
                     ))}
                   </div>

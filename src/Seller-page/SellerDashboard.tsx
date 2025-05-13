@@ -12,7 +12,6 @@ const SellerDashboard = () => {
   useEffect(() => {
     const fetchSellerData = async () => {
       try {
-        // ✅ This is the fixed API call to only get the logged-in seller's dashboard data
         const res = await axios.get("/user/seller/dashboard", {
           withCredentials: true,
         });
